@@ -184,7 +184,7 @@ public class User {
     }
 
     protected void setIsBanned(boolean isBanned) {
-        if (isBanned != true) {
+        if (isBanned == true) {
             this.isBanned = isBanned;
         }
     }
