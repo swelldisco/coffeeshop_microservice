@@ -25,26 +25,23 @@ public class Argon2PasswordEncoder{
     
     @Value("${secret.sauce}")
     private byte[] pepperyBytes;
-    private byte[] saltyBytes;
 
     public String generateSalt() {
         byte[] salt = new byte[DEFAULT_SALT_LENGTH];
         RANDOM.nextBytes(salt);
         return Base64.getEncoder().encodeToString(salt);
     }
-
-    private Argon2Parameters.Builder argonBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
-        .withVersion(Argon2Parameters.ARGON2_VERSION_13)
-        .withIterations(DEFAULT_ITERATIONS)
-        .withMemoryAsKB(DEFAULT_MEMORY_LIMIT)
-        .withParallelism(DEFAULT_PARALLELISM)
-        .withSalt(saltyBytes)
-        .withSecret(pepperyBytes);
-
-    private Argon2BytesGenerator argonGenerator = new Argon2BytesGenerator();
     
     public String hash(String password, String salt) {
-        this.saltyBytes = salt.getBytes(StandardCharsets.UTF_8);
+        byte[] saltyBytes = salt.getBytes(StandardCharsets.UTF_8);
+        Argon2Parameters.Builder argonBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
+            .withVersion(Argon2Parameters.ARGON2_VERSION_13)
+            .withIterations(DEFAULT_ITERATIONS)
+            .withMemoryAsKB(DEFAULT_MEMORY_LIMIT)
+            .withParallelism(DEFAULT_PARALLELISM)
+            .withSalt(saltyBytes)
+            .withSecret(pepperyBytes);
+        Argon2BytesGenerator argonGenerator = new Argon2BytesGenerator();
         argonGenerator.init(argonBuilder.build());
         byte[] result = new byte[DEFAULT_HASH_LENGTH];
         argonGenerator.generateBytes(password.getBytes(StandardCharsets.UTF_8), result, 0 , result.length);
