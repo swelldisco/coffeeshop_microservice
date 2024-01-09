@@ -174,6 +174,14 @@ public class UserTests {
     }
 
     @Test
+    void testBanHammer() {
+        testUser.banHammer();
+
+        Assertions.assertNotNull(testUser.getIsBanned());
+        Assertions.assertTrue(testUser.getIsBanned());
+    }
+
+    @Test
     void testGetIsSuspended() {
         Assertions.assertNotNull(testUser.getIsSuspended());
         Assertions.assertFalse(testUser.getIsSuspended());

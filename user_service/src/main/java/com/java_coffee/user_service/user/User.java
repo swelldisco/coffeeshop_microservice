@@ -184,9 +184,11 @@ public class User {
     }
 
     protected void setIsBanned(boolean isBanned) {
-        if (isBanned == true) {
-            this.isBanned = isBanned;
-        }
+        this.isBanned = isBanned;
+    }
+
+    protected void banHammer() {
+        isBanned = true;
     }
 
     // this would need a timestamp and a way to automatically list suspensions after a given period of time

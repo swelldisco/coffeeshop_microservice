@@ -92,9 +92,11 @@ public class UserDto {
     }
 
     protected void setIsBanned(boolean isBanned) {
-        if (!isBanned) {
-            this.isBanned = isBanned;
-        }
+        this.isBanned = isBanned;
+    }
+
+    protected void banHammer() {
+        isBanned = true;
     }
 
     protected boolean getIsSuspended() {
