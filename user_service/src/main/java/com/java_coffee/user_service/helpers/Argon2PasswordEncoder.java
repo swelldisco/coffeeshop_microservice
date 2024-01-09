@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class Argon2PasswordEncoder{
 
-    // passed a quick test to generate salts, hash passwords, and verify 12/28/2023
     private final Random RANDOM = new SecureRandom();
 
     // ez pz lemon squeezy tuning knobs
