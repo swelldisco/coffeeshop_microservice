@@ -200,6 +200,11 @@ public class UserTests {
         Assertions.assertTrue(testUser.getIsSuspended());
         Assertions.assertNotNull(testUser.getSuspensionDate());
         Assertions.assertInstanceOf(LocalDateTime.class, testUser.getSuspensionDate());
+
+        testUser.setIsSuspended(false);
+        
+        Assertions.assertNotNull(testUser.getIsSuspended());
+        Assertions.assertFalse(testUser.getIsSuspended());
     }
 
     @Test
@@ -214,6 +219,10 @@ public class UserTests {
 
         Assertions.assertNotNull(testUser.getIsConfirmed());
         Assertions.assertTrue(testUser.getIsConfirmed());
+
+        testUser.setIsConfirmed(false);
+        Assertions.assertNotNull(testUser.getIsConfirmed());
+        Assertions.assertFalse(testUser.getIsConfirmed());
     }
 
     @Test
