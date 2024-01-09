@@ -171,6 +171,11 @@ public class UserTests {
 
         Assertions.assertNotNull(testUser.getIsBanned());
         Assertions.assertTrue(testUser.getIsBanned());
+
+        testUser.setIsBanned(false);
+
+        Assertions.assertNotNull(testUser.getIsBanned());
+        Assertions.assertFalse(testUser.getIsBanned());
     }
 
     @Test
