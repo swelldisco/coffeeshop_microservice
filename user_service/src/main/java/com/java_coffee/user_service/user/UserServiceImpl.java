@@ -9,20 +9,21 @@ import org.springframework.stereotype.Service;
 import com.java_coffee.user_service.exceptions.UserNotFoundException;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@Service
 @AllArgsConstructor
+@NoArgsConstructor
+@Service
 public class UserServiceImpl implements UserService{
 
     // I think this is mostly gotten a once over with quick testing 12/30/2023
     private UserRepository repo;
-    private UserMapper mapper = new UserMapper();
-    
+    private UserMapper mapper;
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        User user = new User(userDto.getUserName(), userDto.getEmailAddress(), userDto.getPassword());
-        return mapper.mapToDto(repo.save(user));
+        User savedUser = repo.save(new User(userDto.getUserName(), userDto.getEmailAddress(), userDto.getPassword()));
+        return mapper.mapToDto(savedUser);
     }
 
     @Override
@@ -115,6 +116,8 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    // this needs to force the user to reset their password, either in app or through email link
+    // emergency in case the database gets completely pwned
     @Override
     public void resetSalt(long userId) {
             User user = checkOptionalUserById(userId);

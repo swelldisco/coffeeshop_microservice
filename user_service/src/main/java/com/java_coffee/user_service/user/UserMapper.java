@@ -31,7 +31,7 @@ public class UserMapper {
             source.getEmailAddress(),
             source.getFirstName(),
             source.getLastName(),
-            
+            // password field should be left blank
             source.getJoinDate(),
             source.getIsBanned(),
             source.getIsSuspended(),

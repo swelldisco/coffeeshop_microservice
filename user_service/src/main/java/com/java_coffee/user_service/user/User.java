@@ -236,5 +236,47 @@ public class User {
             + "\n\tis user suspended: " + isSuspended
             + "\n\tis email confirmed: " + isConfirmed;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+        result = prime * result + ((userType == null) ? 0 : userType.hashCode());
+        result = prime * result + ((emailAddress == null) ? 0 : emailAddress.hashCode());
+        result = prime * result + ((joinDate == null) ? 0 : joinDate.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        User other = (User) obj;
+        if (userName == null) {
+            if (other.userName != null)
+                return false;
+        } else if (!userName.equals(other.userName))
+            return false;
+        if (userType != other.userType)
+            return false;
+        if (emailAddress == null) {
+            if (other.emailAddress != null)
+                return false;
+        } else if (!emailAddress.equals(other.emailAddress))
+            return false;
+        if (joinDate == null) {
+            if (other.joinDate != null)
+                return false;
+        } else if (!joinDate.equals(other.joinDate))
+            return false;
+        return true;
+    }
+
+    
     
 }

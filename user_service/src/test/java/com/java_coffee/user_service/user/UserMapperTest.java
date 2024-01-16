@@ -10,6 +10,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 @TestInstance(Lifecycle.PER_CLASS)
 public class UserMapperTest {
     private UserMapper mapper;
+    
     User testUser;
     UserDto testUserDto;
 
@@ -31,6 +32,7 @@ public class UserMapperTest {
     void testMapToDto() {
         UserDto dto = mapper.mapToDto(testUser);
 
+        Assertions.assertNotNull(dto.getUserId());
         Assertions.assertNotNull(dto.getUserName());
         Assertions.assertEquals(testUser.getUserName(), dto.getUserName());
         Assertions.assertNotNull(dto.getEmailAddress());
@@ -43,6 +45,7 @@ public class UserMapperTest {
     void testMapToUser() {
         User user = mapper.mapToUser(testUserDto);
 
+        Assertions.assertNotNull(user.getUserId());
         Assertions.assertNotNull(user.getUserName());
         Assertions.assertEquals(testUserDto.getUserName(), user.getUserName());
         Assertions.assertNotNull(user.getEmailAddress());

@@ -29,6 +29,7 @@ public class UserRepositoryTest {
 
     @Test
     void testSave() {
+        Assertions.assertNotNull(testUser);
         User user = repo.save(testUser);
 
         Assertions.assertNotNull(user.getUserId());
@@ -41,6 +42,7 @@ public class UserRepositoryTest {
 
     @Test
     void testGetByUserId() {
+        Assertions.assertNotNull(testUser);
         repo.save(testUser);
 
         Optional<User> optionalUser = repo.findByUserId(1);
@@ -51,6 +53,7 @@ public class UserRepositoryTest {
 
     @Test
     void testExistsByUserId() {
+        Assertions.assertNotNull(testUser);
         repo.save(testUser);
 
         Assertions.assertNotNull(repo.existsByUserId(1));
@@ -60,6 +63,7 @@ public class UserRepositoryTest {
 
     @Test
     void testExistsByUserNameIgnoreCase() {
+        Assertions.assertNotNull(testUser);
         repo.save(testUser);
         String userName = testUser.getUserName();
 
@@ -70,6 +74,7 @@ public class UserRepositoryTest {
 
     @Test
     void testExistsByEmailAddressIgnoreCase() {
+        Assertions.assertNotNull(testUser);
         repo.save(testUser);
         String emailAddress = testUser.getEmailAddress();
 
@@ -80,6 +85,7 @@ public class UserRepositoryTest {
 
     @Test
     void testFindByUserNameIgnoreCase() {
+        Assertions.assertNotNull(testUser);
         repo.save(testUser);
         String userName = testUser.getUserName();
 
@@ -91,6 +97,7 @@ public class UserRepositoryTest {
 
     @Test
     void testFindByEmailAddressIgnoreCase() {
+        Assertions.assertNotNull(testUser);
         repo.save(testUser);
         String emailAddress = testUser.getEmailAddress();
 
@@ -102,6 +109,7 @@ public class UserRepositoryTest {
 
     @Test
     void testFindAll() {
+        Assertions.assertNotNull(testUser);
         repo.save(testUser);
         User testUser2 = new User("Jim_Bob", "J_B@gmail.com", "kafgdkghaf325");
         repo.save(testUser2);
@@ -116,6 +124,7 @@ public class UserRepositoryTest {
 
     @Test
     void testDeleteById() {
+        Assertions.assertNotNull(testUser);
         repo.save(testUser);
         Assertions.assertTrue(repo.existsByUserId(1));
 
