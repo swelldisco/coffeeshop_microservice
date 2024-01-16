@@ -1,5 +1,6 @@
 package com.java_coffee.user_service.user;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,7 @@ public class UserController {
         return new ResponseEntity<>(userService.getUserById(userId), HttpStatus.OK);
     }
 
-    // http://127.0.0.1:8081/api_v1/users/userName?name=123@gmail.com
+    // http://127.0.0.1:8081/api_v1/users/userName?name=Billy_Bob
     @GetMapping("/userName")
     public ResponseEntity<UserDto> getUserByUserName(@RequestParam String name) {
         return new ResponseEntity<>(userService.getUserByName(name), HttpStatus.OK);
@@ -54,13 +55,13 @@ public class UserController {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
-    // http://127.0.0.1:8081/api_v1/1
+    // http://127.0.0.1:8081/api_v1/users/1
     @PutMapping("/{userId}")
     public ResponseEntity<UserDto> updateUser(@PathVariable long userId, @RequestBody @Valid UserDto userDto) {
         return new ResponseEntity<>(userService.updateUser(userId, userDto), HttpStatus.ACCEPTED);
     }
 
-    // http://127.0.0.1:8081/api_v1/1
+    // http://127.0.0.1:8081/api_v1/users/1
     @DeleteMapping("/{userId}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable long userId) {
         userService.deleteUserById(userId);
@@ -85,5 +86,22 @@ public class UserController {
         userService.resetPassword(identifier);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
-    
+
+    // http://127.0.0.1:8081/api_v1/loadTestData
+    @PostMapping("/loadTestData")
+    public ResponseEntity<HttpStatus> loadTestData() {
+        List<UserDto> testUserList = Arrays.asList(
+            new UserDto("Billy_Bob", "B-B@gmail.com", "wieufgdjwat23785"),
+            new UserDto("Jimbo", "JimmyMcBob@mail.ru", "uwoiagksdjbx"),
+            new UserDto("Bouregard_Bubba", "OtherB-B@gmail.com", "weioufgksdjhx"),
+            new UserDto("Cleeeeeeeeetus", "DonCLEETS@mail.ru", "wafegdsjhu"),
+            new UserDto("Junior", "JethroJr@yahoo.com", "iweluafkjbeiugd")
+        );
+
+        for (UserDto dto : testUserList) {
+            userService.createUser(dto);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }    
 }
