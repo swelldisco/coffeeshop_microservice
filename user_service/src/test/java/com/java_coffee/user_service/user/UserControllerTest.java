@@ -54,12 +54,23 @@ public class UserControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
             .build();
 
+        UserDto user1 = new UserDto(0, "Billy_Bob", UserType.USER, "B-B@gmail.com", null, null, LocalDateTime.now(), false, false, null, null, true);
+        user1.setPassword("ieaugkfs236432");
+
+        UserDto user2 = new UserDto(1, "Jimbo", UserType.USER, "JimmyMcBob@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
+        user2.setPassword("uwoiagksdjbx");
+
+        UserDto user3 = new UserDto(2, "Bouregard_Bubba", UserType.USER, "OtherB-B@gmail.com", null, null, LocalDateTime.now(), false, false, null, null, true);
+        user3.setPassword("weioufgksdjhx");
+
+        UserDto user4 = new UserDto(3, "Cleeeeeeeeetus", UserType.USER, "DonCLEETS@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
+        user4.setPassword("wafegdsjhu");
+
+        UserDto user5 = new UserDto(4, "Junior", UserType.USER, "JethroJr@yahoo.com", null, null, LocalDateTime.now(), false, false, null, null, true);
+        user5.setPassword("iweluafkjbeiugd");
+
         testUserList = Arrays.asList(
-            new UserDto("Billy_Bob", "B-B@gmail.com", "wieufgdjwat23785"),
-            new UserDto("Jimbo", "JimmyMcBob@mail.ru", "uwoiagksdjbx"),
-            new UserDto("Bouregard_Bubba", "OtherB-B@gmail.com", "weioufgksdjhx"),
-            new UserDto("Cleeeeeeeeetus", "DonCLEETS@mail.ru", "wafegdsjhu"),
-            new UserDto("Junior", "JethroJr@yahoo.com", "iweluafkjbeiugd")
+            user1, user2, user3, user4, user5
         );
     }
 
@@ -183,9 +194,10 @@ public class UserControllerTest {
     public void testUpdateUser() throws Exception{
         // given
         Assertions.assertNotNull(testUserList);
-        int testId = 0;
+        int testId = 1;
         String testUrl = "/api_v1/users/" + testId;
         UserDto updatedUser = testUserList.get(testId);
+        Assertions.assertEquals(testId, updatedUser.getUserId());
         String newFirstName = "Billy";
         updatedUser.setFirstName(newFirstName);
         String newEmail = "aNewEmailAddress.gmail.com";

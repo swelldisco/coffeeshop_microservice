@@ -3,6 +3,7 @@ package com.java_coffee.user_service.user;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +24,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserController {
 
+    @Autowired
     private UserService userService;
 
     // http://127.0.0.1:8081/api_v1/users/create
@@ -87,8 +89,8 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
-    // http://127.0.0.1:8081/api_v1/loadTestData
-    @PostMapping("/loadTestData")
+    // http://127.0.0.1:8081/api_v1/users/loadTestData
+    @GetMapping("/loadTestData")
     public ResponseEntity<HttpStatus> loadTestData() {
         List<UserDto> testUserList = Arrays.asList(
             new UserDto("Billy_Bob", "B-B@gmail.com", "wieufgdjwat23785"),

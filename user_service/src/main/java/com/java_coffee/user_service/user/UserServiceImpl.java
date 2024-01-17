@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.java_coffee.user_service.exceptions.UserNotFoundException;
@@ -17,7 +18,10 @@ import lombok.NoArgsConstructor;
 public class UserServiceImpl implements UserService{
 
     // I think this is mostly gotten a once over with quick testing 12/30/2023
+    
+    @Autowired
     private UserRepository repo;
+    @Autowired
     private UserMapper mapper;
 
     @Override
