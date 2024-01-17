@@ -3,6 +3,8 @@ package com.java_coffee.user_service.user;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -30,6 +33,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.java_coffee.user_service.user.constants.UserType;
+import com.jayway.jsonpath.JsonPath;
 
 import jakarta.servlet.ServletContext;
 
@@ -54,24 +58,22 @@ public class UserControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
             .build();
 
-        UserDto user1 = new UserDto(0, "Billy_Bob", UserType.USER, "B-B@gmail.com", null, null, LocalDateTime.now(), false, false, null, null, true);
+        UserDto user1 = new UserDto(1, "Billy_Bob", UserType.USER, "B-B@gmail.com", null, null, LocalDateTime.now(), false, false, null, null, true);
         user1.setPassword("ieaugkfs236432");
 
-        UserDto user2 = new UserDto(1, "Jimbo", UserType.USER, "JimmyMcBob@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
+        UserDto user2 = new UserDto(2, "Jimbo", UserType.USER, "JimmyMcBob@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
         user2.setPassword("uwoiagksdjbx");
 
-        UserDto user3 = new UserDto(2, "Bouregard_Bubba", UserType.USER, "OtherB-B@gmail.com", null, null, LocalDateTime.now(), false, false, null, null, true);
+        UserDto user3 = new UserDto(3, "Bouregard_Bubba", UserType.USER, "OtherB-B@gmail.com", null, null, LocalDateTime.now(), false, false, null, null, true);
         user3.setPassword("weioufgksdjhx");
 
-        UserDto user4 = new UserDto(3, "Cleeeeeeeeetus", UserType.USER, "DonCLEETS@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
+        UserDto user4 = new UserDto(4, "Cleeeeeeeeetus", UserType.USER, "DonCLEETS@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
         user4.setPassword("wafegdsjhu");
 
-        UserDto user5 = new UserDto(4, "Junior", UserType.USER, "JethroJr@yahoo.com", null, null, LocalDateTime.now(), false, false, null, null, true);
+        UserDto user5 = new UserDto(5, "Junior", UserType.USER, "JethroJr@yahoo.com", null, null, LocalDateTime.now(), false, false, null, null, true);
         user5.setPassword("iweluafkjbeiugd");
 
-        testUserList = Arrays.asList(
-            user1, user2, user3, user4, user5
-        );
+        testUserList = Arrays.asList(user1, user2, user3, user4, user5);
     }
 
     @AfterEach
@@ -193,29 +195,48 @@ public class UserControllerTest {
     @Test
     public void testUpdateUser() throws Exception{
         // given
-        Assertions.assertNotNull(testUserList);
-        int testId = 1;
+        UserDto updatedUser = new UserDto(2, "Jimbo", UserType.USER, "JimmyMcBob@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
+        updatedUser.setPassword("uwoiagksdjbx");
+        String newFirstName = "Jimmy";
+        String newEmail = "A_new_Email@mail.ru";
+        String oldEmail = updatedUser.getEmailAddress();
+        int testId = (int)updatedUser.getUserId();
         String testUrl = "/api_v1/users/" + testId;
-        UserDto updatedUser = testUserList.get(testId);
-        Assertions.assertEquals(testId, updatedUser.getUserId());
-        String newFirstName = "Billy";
         updatedUser.setFirstName(newFirstName);
-        String newEmail = "aNewEmailAddress.gmail.com";
         updatedUser.setEmailAddress(newEmail);
 
         // when
-        when(testService.updateUser(testId, updatedUser)).thenReturn(updatedUser);
-
+        when(testService.updateUser(anyLong(), any(UserDto.class))).thenReturn(updatedUser);
         RequestBuilder rq = MockMvcRequestBuilders.put(testUrl)
             .content(objectMapper.writeValueAsString(updatedUser))
             .contentType(MediaType.APPLICATION_JSON_VALUE);
 
+
         // then
-        this.mockMvc.perform(rq)
+        MvcResult mvcResult = mockMvc.perform(rq)
             .andExpect(MockMvcResultMatchers.status().isAccepted())
             .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value(newFirstName))
             .andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value(newEmail))
             .andReturn();
+
+            String response = mvcResult.getResponse().getContentAsString();
+            String checkEmail = JsonPath.parse(response).read("$.emailAddress");
+            Assertions.assertNotEquals(oldEmail, checkEmail);
+            Assertions.assertEquals(newEmail, checkEmail);
+    }
+
+    @Test
+    public void testDeleteUser() throws Exception {
+        // given
+        int testId = 1;
+        String testUrl = "/api_v1/users/" + testId;
+
+        // when
+        doNothing().when(testService).deleteUserById(testId);
+
+        // then
+        this.mockMvc.perform(MockMvcRequestBuilders.delete(testUrl))
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
 }

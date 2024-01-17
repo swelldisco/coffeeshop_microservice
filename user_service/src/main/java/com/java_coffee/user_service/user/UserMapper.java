@@ -24,7 +24,7 @@ public class UserMapper {
     }
 
     protected UserDto mapToDto(User source) {
-        return new UserDto(
+        UserDto temp =  new UserDto(
             source.getUserId(),
             source.getUserName(),
             source.getUserType(),
@@ -39,6 +39,8 @@ public class UserMapper {
             source.getSuspensionExpiration(),
             source.getIsConfirmed()
         );
+        temp.setPassword("****");
+        return temp;
     }
     
 }

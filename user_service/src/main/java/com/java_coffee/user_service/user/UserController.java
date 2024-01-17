@@ -70,6 +70,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    // these need to be rethunk
     // http://127.0.0.1:8081/api_v1/isEmailInUse?email=123@gmail.com
     @GetMapping("/isEmailInUse")
     public ResponseEntity<Boolean> isEmailInUse(@RequestParam String email) {
