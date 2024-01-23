@@ -6,7 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.java_coffee.user_service.helpers.Argon2PasswordEncoder;
-import com.java_coffee.user_service.user.constants.UserType;
+import com.java_coffee.user_service.user.constants.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,6 +16,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "_users")
@@ -31,22 +34,32 @@ public class User {
     private long userId;
 
     @Column(name = "user_name", nullable = false, length = 35, unique = true)
+    @NotEmpty(message = "User name cannot be left empty.")
+    @NotBlank(message = "User name cannot be left blank.")
+    @Size(max = 35, message = "User name cannot be longer than 35 characters.")
     private String userName;
 
     @Column(name = "user_type", nullable = false)
-    private UserType userType;
+    private Role role;
 
     @Column(name = "email_address", nullable = false, length = 50, unique = true)
     @Email
+    @NotEmpty(message = "Email address cannot be left empty.")
+    @NotBlank(message = "Email address cannot be left blank.")
+    @Size(max = 35, message = "Email address cannot be longer than 35 characters.")
     private String emailAddress;
 
-    @Column(name = "first_name", nullable = true, length = 50)
+    @Column(name = "first_name", nullable = true, length = 35)
+    @Size(min = 1, max = 35, message = "First name cannot be longer than 35 characters.")
     private String firstName;
 
-    @Column(name = "last_name", nullable = true, length = 50)
+    @Column(name = "last_name", nullable = true, length = 35)
+    @Size(min = 1, max = 35, message = "Last name cannot be longer than 35 characters.")
     private String lastName;
 
     @Column(name = "password_hash", nullable = false, length = 344)
+    @NotEmpty(message = "Password cannot be left empty.")
+    @NotBlank(message = "Password cannot be left blank.")
     private String passwordHash;
 
     @Column(name = "salt", nullable = false, length = 88)
@@ -72,12 +85,14 @@ public class User {
     @Column(name = "is_confirmed", nullable = false, columnDefinition = "boolean default false")
     private boolean isConfirmed;
 
+    // user needs a list of orders once I talk with Ajmal about doing this
+
     protected User() {}
 
     protected User(String userName, String emailAddress, String password) {
         this.userName = userName;
         this.emailAddress = emailAddress;
-        this.userType = UserType.USER;
+        this.role = Role.USER;
         this.salt = encoder.generateSalt();
         this.passwordHash = encoder.hash(password, salt);
         this.joinDate = LocalDateTime.now();
@@ -89,7 +104,7 @@ public class User {
     protected User(User source) {
         this.userId = source.userId;
         this.userName = source.userName;
-        this.userType = source.userType;
+        this.role = source.role;
         this.emailAddress = source.emailAddress;
         this.firstName = source.firstName;
         this.lastName = source.lastName;
@@ -102,10 +117,10 @@ public class User {
     }
 
     // for mapping to the DTO
-    protected User (long userdId, String userName, UserType userType, String emailAddress, String firstName, String lastName, LocalDateTime joinDate, boolean isBanned, boolean isSuspended, LocalDateTime suspensionDate, LocalDateTime suspensionExpiration, boolean isConfirmed) {
+    protected User (long userdId, String userName, Role userType, String emailAddress, String firstName, String lastName, LocalDateTime joinDate, boolean isBanned, boolean isSuspended, LocalDateTime suspensionDate, LocalDateTime suspensionExpiration, boolean isConfirmed) {
         this.userId = userdId;
         this.userName = userName;
-        this.userType = userType;
+        this.role = userType;
         this.emailAddress = emailAddress;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -131,12 +146,12 @@ public class User {
         this.userName = userName;
     }
 
-    protected UserType getUserType() {
-        return userType;
+    protected Role getRole() {
+        return role;
     }
 
-    protected void setUserType(UserType userType) {
-        this.userType = userType;
+    protected void setRole(Role role) {
+        this.role = role;
     }
 
     protected String getEmailAddress() {
@@ -229,7 +244,7 @@ public class User {
     public String toString() {
         return "user id: " + userId + " user name: " + userName + "\n\tpassword hash: " + passwordHash + "\n\tsalt: " + salt
             + "\n\temail address: " + emailAddress
-            + "\n\tuser type: " + userType.toString()
+            + "\n\tuser type: " + role.toString()
             + "\n\tfirst name: " + firstName
             + "\n\tlast name: " + lastName
             + "\n\tis user banned: " + isBanned
@@ -242,7 +257,7 @@ public class User {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((userName == null) ? 0 : userName.hashCode());
-        result = prime * result + ((userType == null) ? 0 : userType.hashCode());
+        result = prime * result + ((role == null) ? 0 : role.hashCode());
         result = prime * result + ((emailAddress == null) ? 0 : emailAddress.hashCode());
         result = prime * result + ((joinDate == null) ? 0 : joinDate.hashCode());
         return result;
@@ -262,7 +277,7 @@ public class User {
                 return false;
         } else if (!userName.equals(other.userName))
             return false;
-        if (userType != other.userType)
+        if (role != other.role)
             return false;
         if (emailAddress == null) {
             if (other.emailAddress != null)

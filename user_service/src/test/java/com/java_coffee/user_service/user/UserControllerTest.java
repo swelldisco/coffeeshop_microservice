@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.java_coffee.user_service.user.constants.UserType;
+import com.java_coffee.user_service.user.constants.Role;
 import com.jayway.jsonpath.JsonPath;
 
 import jakarta.servlet.ServletContext;
@@ -41,7 +41,7 @@ import jakarta.servlet.ServletContext;
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
-    
+    private UserMapper mapper;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -58,20 +58,15 @@ public class UserControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
             .build();
 
-        UserDto user1 = new UserDto(1, "Billy_Bob", UserType.USER, "B-B@gmail.com", null, null, LocalDateTime.now(), false, false, null, null, true);
-        user1.setPassword("ieaugkfs236432");
+        UserDto user1 = new UserDto(1L, "Billy_Bob", Role.USER, "B-B@gmail.com", null, null, "wieufgdjwat23785", null, false, false, null, null, false);
 
-        UserDto user2 = new UserDto(2, "Jimbo", UserType.USER, "JimmyMcBob@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
-        user2.setPassword("uwoiagksdjbx");
+        UserDto user2 = new UserDto(2L ,"Jimbo", Role.USER, "JimmyMcBob@mail.ru", null, null, "uwoiagksdjbx", null, false, false, null, null, false);
 
-        UserDto user3 = new UserDto(3, "Bouregard_Bubba", UserType.USER, "OtherB-B@gmail.com", null, null, LocalDateTime.now(), false, false, null, null, true);
-        user3.setPassword("weioufgksdjhx");
+        UserDto user3 = new UserDto(3L, "Bouregard_Bubba", Role.USER, "OtherB-B@gmail.com", null, null, "weioufgksdjhx", null, false, false, null, null, false);
 
-        UserDto user4 = new UserDto(4, "Cleeeeeeeeetus", UserType.USER, "DonCLEETS@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
-        user4.setPassword("wafegdsjhu");
+        UserDto user4 = new UserDto(4L, "Cleeeeeeeeetus", Role.USER, "DonCLEETS@mail.ru", null, null, "wafegdsjhu", null, false, false, null, null, false);
 
-        UserDto user5 = new UserDto(5, "Junior", UserType.USER, "JethroJr@yahoo.com", null, null, LocalDateTime.now(), false, false, null, null, true);
-        user5.setPassword("iweluafkjbeiugd");
+        UserDto user5 = new UserDto(5L, "Junior", Role.USER, "JethroJr@yahoo.com", null, null, "iweluafkjbeiugd",null, false, false, null, null, false);
 
         testUserList = Arrays.asList(user1, user2, user3, user4, user5);
     }
@@ -96,8 +91,7 @@ public class UserControllerTest {
     public void testCreateUser() throws Exception {
         // given
         LocalDateTime testTime = LocalDateTime.now();
-        UserDto testDto = new UserDto(1, "Billy_Bob", UserType.USER, "B-B@gmail.com", null, null, testTime, false, false, null, null, true);
-        testDto.setPassword("ieaugkfs236432");
+        UserDto testDto = new UserDto(0L, "Billy_Bob", Role.USER, "B-B@gmail.com", null, null, "wieufgdjwat23785", testTime, false, false, null, null, false);
 
         // when
         // stub the testService
@@ -110,8 +104,8 @@ public class UserControllerTest {
         // then
         mockMvc.perform(rq)
             .andExpect(MockMvcResultMatchers.status().isCreated())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.userName").value(testDto.getUserName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value(testDto.getEmailAddress()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.userName").value(testDto.userName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value(testDto.emailAddress()))
             .andReturn();
     }
 
@@ -121,8 +115,8 @@ public class UserControllerTest {
         Assertions.assertNotNull(testUserList);
         int testId = 1;
         String testUrl = "/api_v1/users/id?userId=" + testId;
-        String testUserName = testUserList.get(testId).getUserName();
-        String testEmailAddress = testUserList.get(testId).getEmailAddress();
+        String testUserName = testUserList.get(testId).userName();
+        String testEmailAddress = testUserList.get(testId).emailAddress();
 
         // when
         when(testService.getUserById(testId)).thenReturn(testUserList.get(testId));
@@ -139,13 +133,13 @@ public class UserControllerTest {
     public void testGetUserByUserName() throws Exception {
         // given
         Assertions.assertNotNull(testUserList);
-        String testUserName = testUserList.get(0).getUserName();
+        String testUserName = testUserList.get(0).userName();
         String testUrl = "/api_v1/users/userName?name=" + testUserName;
-        String testUserEmail = testUserList.get(0).getEmailAddress();
+        String testUserEmail = testUserList.get(0).emailAddress();
 
         // when
         when(testService.getUserByName(testUserName)).thenReturn(testUserList.stream()
-            .filter(u -> u.getUserName().equalsIgnoreCase(testUserName))
+            .filter(u -> u.userName().equalsIgnoreCase(testUserName))
             .findFirst()
             .orElse(null));
 
@@ -160,13 +154,13 @@ public class UserControllerTest {
     public void testGetUserByEmailAddress() throws Exception {
         // given
         Assertions.assertNotNull(testUserList);
-        String testUserEmail = testUserList.get(0).getEmailAddress();
+        String testUserEmail = testUserList.get(0).emailAddress();
         String testUrl = "/api_v1/users/email?emailAddress=" + testUserEmail;
-        String testUserName = testUserList.get(0).getUserName();
+        String testUserName = testUserList.get(0).userName();
 
         // when
         when(testService.getUserByEmail(testUserEmail)).thenReturn(testUserList.stream()
-            .filter(u -> u.getEmailAddress().equalsIgnoreCase(testUserEmail))
+            .filter(u -> u.emailAddress().equalsIgnoreCase(testUserEmail))
             .findFirst()
             .orElse(null));
 
@@ -195,8 +189,7 @@ public class UserControllerTest {
     @Test
     public void testUpdateUser() throws Exception{
         // given
-        UserDto updatedUser = new UserDto(2, "Jimbo", UserType.USER, "JimmyMcBob@mail.ru", null, null, LocalDateTime.now(), false, false, null, null, true);
-        updatedUser.setPassword("uwoiagksdjbx");
+        User updatedUser = mapper.mapToUser(new UserDto(2L ,"Jimbo", Role.USER, "JimmyMcBob@mail.ru", null, null, "uwoiagksdjbx", null, false, false, null, null, false));
         String newFirstName = "Jimmy";
         String newEmail = "A_new_Email@mail.ru";
         String oldEmail = updatedUser.getEmailAddress();
@@ -204,9 +197,10 @@ public class UserControllerTest {
         String testUrl = "/api_v1/users/" + testId;
         updatedUser.setFirstName(newFirstName);
         updatedUser.setEmailAddress(newEmail);
+        UserDto updatedDto = mapper.mapToDto(updatedUser);
 
         // when
-        when(testService.updateUser(anyLong(), any(UserDto.class))).thenReturn(updatedUser);
+        when(testService.updateUser(anyLong(), any(UserDto.class))).thenReturn(updatedDto);
         RequestBuilder rq = MockMvcRequestBuilders.put(testUrl)
             .content(objectMapper.writeValueAsString(updatedUser))
             .contentType(MediaType.APPLICATION_JSON_VALUE);

@@ -1,11 +1,11 @@
 package com.java_coffee.user_service.user.constants;
 
-public enum UserType {
-    USER("User"), ADMIN("Administrator"), GLOBAL_ADMIN("Global Administrator");
+public enum Role {
+    USER("User"), ADMIN("Administrator"), BARISTA("Barista");
 
     private String value;
 
-    UserType(String value) {
+    Role(String value) {
         this.value = value;
     }
 

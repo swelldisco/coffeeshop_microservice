@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        User savedUser = repo.save(new User(userDto.getUserName(), userDto.getEmailAddress(), userDto.getPassword()));
+        User savedUser = repo.save(new User(userDto.userName(), userDto.emailAddress(), userDto.password()));
         return mapper.mapToDto(savedUser);
     }
 
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService{
             }
             updatedUser.setFirstName(user.getFirstName());
             updatedUser.setLastName(user.getLastName());
-            updatedUser.setUserType(user.getUserType());
+            updatedUser.setRole(user.getRole());
             updatedUser.setIsBanned(user.getIsBanned());
             updatedUser.setIsSuspended(user.getIsSuspended());
             updatedUser.setIsConfirmed(user.getIsConfirmed());

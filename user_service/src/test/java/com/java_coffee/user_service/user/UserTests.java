@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.java_coffee.user_service.user.constants.UserType;
+import com.java_coffee.user_service.user.constants.Role;
 
 public class UserTests {
     User testUser;
@@ -48,17 +48,17 @@ public class UserTests {
 
     @Test
     void testGetUserType() {
-        Assertions.assertNotNull(testUser.getUserType());
-        Assertions.assertEquals(UserType.USER, testUser.getUserType());
+        Assertions.assertNotNull(testUser.getRole());
+        Assertions.assertEquals(Role.USER, testUser.getRole());
     }
 
     @Test
     void testSetUserType() {
-        testUser.setUserType(UserType.ADMIN);
+        testUser.setRole(Role.ADMIN);
 
-        Assertions.assertNotNull(testUser.getUserType());
-        Assertions.assertNotEquals(UserType.USER, testUser.getUserType());
-        Assertions.assertEquals(UserType.ADMIN, testUser.getUserType());
+        Assertions.assertNotNull(testUser.getRole());
+        Assertions.assertNotEquals(Role.USER, testUser.getRole());
+        Assertions.assertEquals(Role.ADMIN, testUser.getRole());
     }
 
     @Test

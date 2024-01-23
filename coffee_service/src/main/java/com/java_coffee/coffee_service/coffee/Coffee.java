@@ -14,13 +14,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "coffee")
+// @Table(name = "coffee")
+// @SecondaryTable(name = "menu")
+@Table(name = "menu")
 public class Coffee{
 
     @Id
     @Column(name = "coffee_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int coffeeId;
 
     @Column(name = "size")
     private CoffeeSize size;
@@ -36,37 +38,37 @@ public class Coffee{
 
     @Column(name = "ingredient_list")
     @ElementCollection
-    private List<String> ingredientsList;
+    private List<String> ingredientList;
 
     protected Coffee() {}
 
-    public Coffee(String drinkName, double basePrice, List<String> ingredientsList) {
+    public Coffee(String drinkName, double basePrice, List<String> ingredientList) {
         this.size = CoffeeSize.SHORT;
         this.drinkName = drinkName;
         this.basePrice = basePrice;
         this.price = calculateUpcharge(basePrice, size);
-        this.ingredientsList = ingredientsList;
+        this.ingredientList = ingredientList;
     }
 
-    protected Coffee(Coffee source) {
-        this.id = source.id;
+    public Coffee(Coffee source) {
+        this.coffeeId = source.coffeeId;
         this.size = source.size;
         this.drinkName = source.drinkName;
         this.basePrice = source.basePrice;
         this.price = calculateUpcharge(basePrice, size);
-        this.ingredientsList = source.ingredientsList;
+        this.ingredientList = source.ingredientList;
     }
 
-    protected Coffee(int id, CoffeeSize size, String drinkName, double basePrice, List<String> ingredientList) {
-        this.id = id;
+    public Coffee(int coffeeId, CoffeeSize size, String drinkName, double basePrice, List<String> ingredientList) {
+        this.coffeeId = coffeeId;
         this.size = size;
         this.drinkName = drinkName;
         this.basePrice = basePrice;
         this.price = calculateUpcharge(basePrice, size);
-        this.ingredientsList= ingredientList;
+        this.ingredientList= ingredientList;
     }
 
-    protected double calculateUpcharge(double basePrice, CoffeeSize size) {
+    public double calculateUpcharge(double basePrice, CoffeeSize size) {
         switch (size) {
             case SHORT: return basePrice;
             case TALL: return basePrice + 0.30;
@@ -76,57 +78,57 @@ public class Coffee{
         }
     }
 
-    protected int getId() {
-        return id;
+    public int getCoffeeId() {
+        return coffeeId;
     }
 
-    protected void setId(int id) {
-        this.id = id;
+    public void setCoffeeId(int coffeeId) {
+        this.coffeeId = coffeeId;
     }
 
-    protected CoffeeSize getSize() {
+    public CoffeeSize getSize() {
         return size;
     }
 
-    protected void setSize(CoffeeSize size) {
+    public void setSize(CoffeeSize size) {
         this.size = size;
     }
 
-    protected String getDrinkName() {
+    public String getDrinkName() {
         return drinkName;
     }
 
-    protected void setDrinkName(String drinkName) {
+    public void setDrinkName(String drinkName) {
         this.drinkName = drinkName;
     }
 
-    protected double getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    protected void setPrice() {
+    public void setPrice() {
         this.price = calculateUpcharge(basePrice, size);
     }
 
-    protected double getBasePrice() {
+    public double getBasePrice() {
         return basePrice;
     }
 
-    protected void setBasePrice(double basePrice) {
+    public void setBasePrice(double basePrice) {
         this.basePrice = basePrice;
     }
 
-    protected List<String> getIngredientsList() {
-        return ingredientsList;
+    public List<String> getIngredientList() {
+        return ingredientList;
     }
 
-    protected void setIngredientsList(List<String> ingredientsList) {
-        this.ingredientsList = ingredientsList;
+    public void setIngredientsList(List<String> ingredientList) {
+        this.ingredientList = ingredientList;
     }
 
-    protected String readOutIngredients() {
-        if (ingredientsList != null && !ingredientsList.isEmpty()) {
-            return ingredientsList.stream()
+    public String readOutIngredients() {
+        if (ingredientList != null && !ingredientList.isEmpty()) {
+            return ingredientList.stream()
                 .collect(Collectors.joining(", "));
         } else {
             return "No ingredients listed.";
@@ -135,7 +137,7 @@ public class Coffee{
 
     @Override
     public String toString() {
-        return (getId()+1) + ": " + getSize() + " " + getDrinkName() + " $" + String.format("%.2f", getPrice());
+        return getCoffeeId() + ": " + getSize() + " " + getDrinkName() + " $" + String.format("%.2f", getPrice());
     }
 
     // just to remind myself

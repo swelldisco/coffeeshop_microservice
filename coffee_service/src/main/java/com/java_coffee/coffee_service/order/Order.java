@@ -4,12 +4,38 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.java_coffee.coffee_service.coffee.CoffeeDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.java_coffee.coffee_service.coffee.Coffee;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Entity
+@Table(name = "order")
 public class Order {
-    private List<CoffeeDto> myOrder;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private long orderId;
+
+    @Column(name = "user_id", nullable = false)
+    //@ManyToOne(fetch = FetchType.LAZY)
     private long userId;
+
+    // this needs to reference the coffee entity somehow
+    // or I think I need some order helper classes
+    @Column(name = "my_order")
+    private List<Coffee> myOrder;
+
+    @Column(name = "time_stamp")
+    @JsonFormat(pattern="MM-dd-yyyy HH:mm:ss")
     private LocalDateTime timeStamp;
 
     public Order() {
@@ -17,20 +43,20 @@ public class Order {
         this.timeStamp = LocalDateTime.now();
     }
 
-    public Order(List<CoffeeDto> myOrder, long orderId, long userId, LocalDateTime timeStamp) {
-        this.myOrder = myOrder;
+    public Order(long orderId, long userId, List<Coffee> myOrder, LocalDateTime timeStamp) {
         this.orderId = orderId;
         this.userId = userId;
+        this.myOrder = myOrder;
         this.timeStamp = timeStamp;
     }
 
 
-    protected void addCoffeeToOrder(CoffeeDto coffeeDto) {
-        myOrder.add(coffeeDto);
+    protected void addCoffeeToOrder(Coffee coffee) {
+        myOrder.add(coffee);
     }
 
-    protected void removeCoffeeFromOrder(CoffeeDto coffeeDto) {
-        myOrder.remove(coffeeDto);
+    protected void removeCoffeeFromOrder(Coffee coffee) {
+        myOrder.remove(coffee);
     }
 
     protected void setOrderId(long orderId) {
@@ -56,25 +82,25 @@ public class Order {
     protected String getMyOrder() {
         StringBuilder sb = new StringBuilder();
         sb.append("Your order: ");
-        for (CoffeeDto coffeeDto : myOrder) {
-            sb.append("\n" + coffeeDto.toString());
+        for (Coffee coffee : myOrder) {
+            sb.append("\n" + coffee.toString());
         }
         return sb.toString();
     }
 
-    protected List<CoffeeDto> returnOrderList(){
+    protected List<Coffee> getOrderList(){
         return myOrder;
     }
 
-    protected void setMyOrder(List<CoffeeDto> myOrder) {
+    protected void setMyOrder(List<Coffee> myOrder) {
         this.myOrder = myOrder;
     }
 
     protected String getTotal() {
         double cost = 0;
         String total = "Total: $";
-        for (CoffeeDto coffeeDto : myOrder) {
-            cost += coffeeDto.getPrice();
+        for (Coffee coffee : myOrder) {
+            cost += coffee.getPrice();
         }
         return total + String.format("%.2f", cost);
     }

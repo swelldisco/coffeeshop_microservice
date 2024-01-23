@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.java_coffee.user_service.exceptions.UserNotFoundException;
-import com.java_coffee.user_service.user.constants.UserType;
+import com.java_coffee.user_service.user.constants.Role;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -51,28 +51,27 @@ public class UserServiceImplTest {
 
    @BeforeEach
    void setUp() {
-        testUserDto = new UserDto(1,"Billy", UserType.USER, "12345@gmail.com", "Billy", "Bob", date1, false, false, null, null, true);
-        testUserDto.setPassword("ieaugkfs236432");
+        testUserDto = new UserDto(1L, "Billy_Bob", Role.USER, "B-B@gmail.com", null, null, "wieufgdjwat23785", null, false, false, null, null, false);
 
         testUser = new User(mapper.mapToUser(testUserDto));
 
-        User user1 = new User(0, "Billy_Bob", UserType.USER, "B-B@gmail.com", null, null, date1, false, false, null, null, true);
+        User user1 = new User(0, "Billy_Bob", Role.USER, "B-B@gmail.com", null, null, date1, false, false, null, null, true);
         user1.resetSalt();
         user1.setPasswordHash("ieaugkfs236432");
 
-        User user2 = new User(1, "Jimbo", UserType.USER, "Jimbo@mail.ru", null, null, date1, false, false, null, null, true);
+        User user2 = new User(1, "Jimbo", Role.USER, "Jimbo@mail.ru", null, null, date1, false, false, null, null, true);
         user2.resetSalt();
         user2.setPasswordHash("euifhdjgfejgfdjag");
 
-        User user3 = new User(2, "Cleets", UserType.USER, "Anemail@email.com", null, null, date1, false, false, null, null, true);
+        User user3 = new User(2, "Cleets", Role.USER, "Anemail@email.com", null, null, date1, false, false, null, null, true);
         user3.resetSalt();
         user3.setPasswordHash("gfdshjwuegjsd");
 
-        User user4 = new User(3, "Jethro", UserType.USER, "jgimpy@UofT.edu", null, null, date1, false, false, null, null, true);
+        User user4 = new User(3, "Jethro", Role.USER, "jgimpy@UofT.edu", null, null, date1, false, false, null, null, true);
         user4.resetSalt();
         user4.setPasswordHash("wieufd83ye");
 
-        User user5 = new User(4, "Bubba", UserType.USER, "bubs@mail.ru", null, null, date1, false, false, null, null, true);
+        User user5 = new User(4, "Bubba", Role.USER, "bubs@mail.ru", null, null, date1, false, false, null, null, true);
         user5.resetSalt();
         user5.setPasswordHash("uwqeihkjd37842");
 
@@ -106,7 +105,7 @@ public class UserServiceImplTest {
         List<User> emptyList = Arrays.asList(testUser);
         Assertions.assertEquals(1, emptyList.size());
         long longId = testUser.getUserId();
-        Assertions.assertEquals(longId, testUserDto.getUserId());
+        Assertions.assertEquals(longId, testUserDto.userId());
         User anotherUser = new User(emptyList.get(0));
         Assertions.assertNotNull(anotherUser);
 
@@ -128,10 +127,10 @@ public class UserServiceImplTest {
         UserDto userDto = service.getUserById(longId);
 
         // then
-        Assertions.assertNotNull(userDto.getUserId());
+        Assertions.assertNotNull(userDto.userId());
         Assertions.assertEquals(checkSave, userDto);
-        Assertions.assertEquals(testUserDto.getUserName(), userDto.getUserName());
-        Assertions.assertNull(userDto.getPassword());
+        Assertions.assertEquals(testUserDto.userName(), userDto.userName());
+        Assertions.assertEquals(userDto.password(), "****");
     }
 
     @Test
@@ -195,8 +194,8 @@ public class UserServiceImplTest {
         Assertions.assertNotNull(service.getUserById(testUserId1));
         
         UserDto checkUser1 = service.getUserById(testUserId1);
-        Assertions.assertEquals(checkUser.getUserId(), checkUser1.getUserId());
-        Assertions.assertEquals(checkUser.getUserName(), checkUser1.getUserName());
+        Assertions.assertEquals(checkUser.getUserId(), checkUser1.userId());
+        Assertions.assertEquals(checkUser.getUserName(), checkUser1.userName());
     }
 
     @Test
@@ -216,9 +215,9 @@ public class UserServiceImplTest {
         // then
         Assertions.assertNotEquals(goodName, badName);
         Assertions.assertThrowsExactly(UserNotFoundException.class, () -> service.getUserByName(badName));
-        Assertions.assertEquals(checkDto.getUserId(), checkUser.getUserId());
-        Assertions.assertEquals(checkDto.getUserName(), checkUser.getUserName());
-        Assertions.assertEquals(checkDto.getEmailAddress(), checkUser.getEmailAddress());
+        Assertions.assertEquals(checkDto.userId(), checkUser.getUserId());
+        Assertions.assertEquals(checkDto.userName(), checkUser.getUserName());
+        Assertions.assertEquals(checkDto.emailAddress(), checkUser.getEmailAddress());
     }
 
     @Test
@@ -239,9 +238,9 @@ public class UserServiceImplTest {
         // then
         Assertions.assertNotEquals(goodEmail, badEmail);
         Assertions.assertThrowsExactly(UserNotFoundException.class, () -> service.getUserByEmail(badEmail));
-        Assertions.assertEquals(checkDto.getUserId(), checkUser.getUserId());
-        Assertions.assertEquals(checkDto.getUserName(), checkUser.getUserName());
-        Assertions.assertEquals(checkDto.getEmailAddress(), checkUser.getEmailAddress());
+        Assertions.assertEquals(checkDto.userId(), checkUser.getUserId());
+        Assertions.assertEquals(checkDto.userName(), checkUser.getUserName());
+        Assertions.assertEquals(checkDto.emailAddress(), checkUser.getEmailAddress());
     }
 
     @Test
@@ -259,9 +258,9 @@ public class UserServiceImplTest {
         // then
         Assertions.assertNotNull(checkList);
         Assertions.assertNotNull(checkDto);
-        Assertions.assertNotEquals(15, checkDto.getUserId());
-        Assertions.assertEquals(checkUser.getUserId(), checkDto.getUserId());
-        Assertions.assertEquals(checkUser.getEmailAddress(), checkDto.getEmailAddress());
+        Assertions.assertNotEquals(15, checkDto.userId());
+        Assertions.assertEquals(checkUser.getUserId(), checkDto.userId());
+        Assertions.assertEquals(checkUser.getEmailAddress(), checkDto.emailAddress());
     }
 
     @Test
@@ -293,10 +292,10 @@ public class UserServiceImplTest {
         Assertions.assertNotNull(repo.save(checkUser));
         Assertions.assertNotNull(checkDto);
         Assertions.assertNotEquals(oldUserName, newUserName);
-        Assertions.assertNotNull(checkDto.getFirstName());
-        Assertions.assertEquals(newFirstName, checkDto.getFirstName());
-        Assertions.assertNotEquals(oldUserName, checkDto.getUserName());
-        Assertions.assertEquals(newUserName, checkDto.getUserName());
+        Assertions.assertNotNull(checkDto.firstName());
+        Assertions.assertEquals(newFirstName, checkDto.firstName());
+        Assertions.assertNotEquals(oldUserName, checkDto.userName());
+        Assertions.assertEquals(newUserName, checkDto.userName());
 
     }
 
@@ -432,14 +431,16 @@ public class UserServiceImplTest {
         when(repo.findByUserNameIgnoreCase(checkUserName)).thenReturn(Optional.of(testUserList.get(testIndex)));
         when(repo.save(any(User.class))).thenReturn(checkUser);
         service.resetSalt(testIndex);
-        service.changePassword(resetPassToThisJustToBeSure, testIndex);
-        
         
         // then
         // asserting the calls twice because you need to change the password after resetting the salt
-        verify(repo, times(2)).findByUserId(testIndex);
-        verify(repo, times(2)).save(any(User.class));
+        verify(repo, times(1)).findByUserId(testIndex);
+        verify(repo, times(1)).save(any(User.class));
 
+        // password verification should fail after resetting salt and before the password has been reset with the new salt
+        Assertions.assertFalse(service.verifyPassword(resetPassToThisJustToBeSure, checkUserName));
+        // once password is changed following a salt reset, verification should once again work
+        service.changePassword(resetPassToThisJustToBeSure, testIndex);
         Assertions.assertTrue(service.verifyPassword(resetPassToThisJustToBeSure, checkUserName));
         
     }

@@ -1,23 +1,24 @@
 package com.java_coffee.coffee_service.coffee;
 
 public class CoffeeMapper {
-    public Coffee mapToCofee(CoffeeDto source) {
+    public Coffee mapToCoffee(CoffeeDto source) {
         return new Coffee(
-            source.getId(),
-            source.getSize(),
-            source.getDrinkName(),
-            source.getBasePrice(),
-            source.getIngredientsList()
+            source.coffeeId(),
+            source.size(),
+            source.drinkName(),
+            source.basePrice(),
+            source.ingredientList()
         );
     }
 
     public CoffeeDto mapToDto(Coffee source) {
          return new CoffeeDto(
-            source.getId(),
+            source.getCoffeeId(),
             source.getSize(),
             source.getDrinkName(),
             source.getBasePrice(),
-            source.getIngredientsList()
+            source.getPrice(),
+            source.getIngredientList()
         );
     }
 }

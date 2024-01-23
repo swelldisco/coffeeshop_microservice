@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.java_coffee.user_service.user.constants.Role;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -70,22 +73,22 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    // these need to be rethunk
-    // http://127.0.0.1:8081/api_v1/isEmailInUse?email=123@gmail.com
-    @GetMapping("/isEmailInUse")
+    // these need to be rethunk, because this seems to not be how to do this
+    // http://127.0.0.1:8081/api_v1/users/isEmailInUse?email=123@gmail.com
+    @GetMapping(value = "/isEmailInUse", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isEmailInUse(@RequestParam String email) {
         return new ResponseEntity<>(userService.checkEmailAddress(email), HttpStatus.OK);
     }
 
-    // http://127.0.0.1:8081/api_v1/isNameInUse?name=BillyBobJimBob
+    // http://127.0.0.1:8081/api_v1/users/isNameInUse?name=BillyBobJimBob
     @GetMapping("/isNameInUse")
     public ResponseEntity<Boolean> isNameInUse(@RequestParam String name) {
         return new ResponseEntity<>(userService.checkUserName(name), HttpStatus.OK);
     }
 
-    // http://127.0.0.1:8081/api_v1/resetPassword
-    @PutMapping("/resetPassword")
-    public ResponseEntity<HttpStatus> resetPassword(@RequestBody String identifier) {
+    // http://127.0.0.1:8081/api_v1/users/resetPassword?identifier=Billy_Bob
+    @GetMapping("/resetPassword")
+    public ResponseEntity<HttpStatus> resetPassword(@RequestParam String identifier) {
         userService.resetPassword(identifier);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
@@ -94,11 +97,11 @@ public class UserController {
     @GetMapping("/loadTestData")
     public ResponseEntity<HttpStatus> loadTestData() {
         List<UserDto> testUserList = Arrays.asList(
-            new UserDto("Billy_Bob", "B-B@gmail.com", "wieufgdjwat23785"),
-            new UserDto("Jimbo", "JimmyMcBob@mail.ru", "uwoiagksdjbx"),
-            new UserDto("Bouregard_Bubba", "OtherB-B@gmail.com", "weioufgksdjhx"),
-            new UserDto("Cleeeeeeeeetus", "DonCLEETS@mail.ru", "wafegdsjhu"),
-            new UserDto("Junior", "JethroJr@yahoo.com", "iweluafkjbeiugd")
+            new UserDto(0L, "Billy_Bob", Role.USER, "B-B@gmail.com", null, null, "wieufgdjwat23785", null, false, false, null, null, false),
+            new UserDto(0L ,"Jimbo", Role.USER, "JimmyMcBob@mail.ru", null, null, "uwoiagksdjbx", null, false, false, null, null, false),
+            new UserDto(0L, "Bouregard_Bubba", Role.USER, "OtherB-B@gmail.com", null, null, "weioufgksdjhx", null, false, false, null, null, false),
+            new UserDto(0L, "Cleeeeeeeeetus", Role.USER, "DonCLEETS@mail.ru", null, null, "wafegdsjhu", null, false, false, null, null, false),
+            new UserDto(0L, "Junior", Role.USER, "JethroJr@yahoo.com", null, null, "iweluafkjbeiugd",null, false, false, null, null, false)
         );
 
         for (UserDto dto : testUserList) {

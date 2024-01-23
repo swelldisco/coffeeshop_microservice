@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import com.java_coffee.user_service.user.constants.Role;
+
 @TestInstance(Lifecycle.PER_CLASS)
 public class UserMapperTest {
     private UserMapper mapper;
@@ -18,7 +20,7 @@ public class UserMapperTest {
     void setUp() {
         mapper = new UserMapper();
         testUser = new User("Billy_Bob", "B-B@gmail.com", "ieaugkfs236432");
-        testUserDto = new UserDto("Billy_Bob", "B-B@gmail.com", "ieaugkfs236432");
+        testUserDto = new UserDto(0L, "Billy_Bob", Role.USER, "B-B@gmail.com", null, null, "wieufgdjwat23785", null, false, false, null, null, false);
     }
 
     @AfterAll
@@ -32,13 +34,13 @@ public class UserMapperTest {
     void testMapToDto() {
         UserDto dto = mapper.mapToDto(testUser);
 
-        Assertions.assertNotNull(dto.getUserId());
-        Assertions.assertNotNull(dto.getUserName());
-        Assertions.assertEquals(testUser.getUserName(), dto.getUserName());
-        Assertions.assertNotNull(dto.getEmailAddress());
-        Assertions.assertEquals(testUser.getEmailAddress(), dto.getEmailAddress());
-        Assertions.assertNull(dto.getPassword());
-        Assertions.assertNotEquals(testUser.getPasswordHash(), dto.getPassword());
+        Assertions.assertNotNull(dto.userId());
+        Assertions.assertNotNull(dto.userName());
+        Assertions.assertEquals(testUser.getUserName(), dto.userName());
+        Assertions.assertNotNull(dto.emailAddress());
+        Assertions.assertEquals(testUser.getEmailAddress(), dto.emailAddress());
+        Assertions.assertEquals(dto.password(), "****");
+        Assertions.assertNotEquals(testUser.getPasswordHash(), dto.password());
     }
 
     @Test
@@ -47,10 +49,10 @@ public class UserMapperTest {
 
         Assertions.assertNotNull(user.getUserId());
         Assertions.assertNotNull(user.getUserName());
-        Assertions.assertEquals(testUserDto.getUserName(), user.getUserName());
+        Assertions.assertEquals(testUserDto.userName(), user.getUserName());
         Assertions.assertNotNull(user.getEmailAddress());
-        Assertions.assertEquals(testUserDto.getEmailAddress(), user.getEmailAddress());
+        Assertions.assertEquals(testUserDto.emailAddress(), user.getEmailAddress());
         Assertions.assertNull(user.getPasswordHash());
-        Assertions.assertNotEquals(testUserDto.getPassword(), user.getPasswordHash());
+        Assertions.assertNotEquals(testUserDto.password(), user.getPasswordHash());
     }
 }

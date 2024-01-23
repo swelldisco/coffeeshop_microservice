@@ -7,31 +7,31 @@ public class UserMapper {
     
     protected User mapToUser(UserDto source) {
         return new User(
-            source.getUserId(),
-            source.getUserName(),
-            source.getUserType(),
-            source.getEmailAddress(),
-            source.getFirstName(),
-            source.getLastName(),
+            source.userId(),
+            source.userName(),
+            source.role(),
+            source.emailAddress(),
+            source.firstName(),
+            source.lastName(),
             // password and salt are null
-            source.getJoinDate(),
-            source.getIsBanned(),
-            source.getIsSuspended(),
-            source.getSuspensionDate(),
-            source.getSuspensionExpiration(),
-            source.getIsConfirmed()
+            source.joinDate(),
+            source.isBanned(),
+            source.isSuspended(),
+            source.suspensionDate(),
+            source.suspensionExpiration(),
+            source.isConfirmed()
         );
     }
 
     protected UserDto mapToDto(User source) {
-        UserDto temp =  new UserDto(
+        return new UserDto(
             source.getUserId(),
             source.getUserName(),
-            source.getUserType(),
+            source.getRole(),
             source.getEmailAddress(),
             source.getFirstName(),
             source.getLastName(),
-            // password field should be left blank
+            "****",
             source.getJoinDate(),
             source.getIsBanned(),
             source.getIsSuspended(),
@@ -39,8 +39,6 @@ public class UserMapper {
             source.getSuspensionExpiration(),
             source.getIsConfirmed()
         );
-        temp.setPassword("****");
-        return temp;
     }
     
 }
