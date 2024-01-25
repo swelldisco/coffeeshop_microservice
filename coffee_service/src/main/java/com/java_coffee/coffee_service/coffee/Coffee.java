@@ -22,7 +22,7 @@ public class Coffee{
     @Id
     @Column(name = "coffee_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int coffeeId;
+    private long coffeeId;
 
     @Column(name = "size")
     private CoffeeSize size;
@@ -59,7 +59,7 @@ public class Coffee{
         this.ingredientList = source.ingredientList;
     }
 
-    public Coffee(int coffeeId, CoffeeSize size, String drinkName, double basePrice, List<String> ingredientList) {
+    public Coffee(long coffeeId, CoffeeSize size, String drinkName, double basePrice, List<String> ingredientList) {
         this.coffeeId = coffeeId;
         this.size = size;
         this.drinkName = drinkName;
@@ -71,14 +71,14 @@ public class Coffee{
     public double calculateUpcharge(double basePrice, CoffeeSize size) {
         switch (size) {
             case SHORT: return basePrice;
-            case TALL: return basePrice + 0.30;
-            case GRANDE: return basePrice + 0.65;
-            case VENTI: return basePrice + 1.00;
+            case TALL: return basePrice += 0.30;
+            case GRANDE: return basePrice += 0.65;
+            case VENTI: return basePrice += 1.00;
             default: return 0.00;
         }
     }
 
-    public int getCoffeeId() {
+    public long getCoffeeId() {
         return coffeeId;
     }
 
@@ -140,10 +140,55 @@ public class Coffee{
         return getCoffeeId() + ": " + getSize() + " " + getDrinkName() + " $" + String.format("%.2f", getPrice());
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((size == null) ? 0 : size.hashCode());
+        result = prime * result + ((drinkName == null) ? 0 : drinkName.hashCode());
+        long temp;
+        temp = Double.doubleToLongBits(basePrice);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(price);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((ingredientList == null) ? 0 : ingredientList.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Coffee other = (Coffee) obj;
+        if (size != other.size)
+            return false;
+        if (drinkName == null) {
+            if (other.drinkName != null)
+                return false;
+        } else if (!drinkName.equals(other.drinkName))
+            return false;
+        if (Double.doubleToLongBits(basePrice) != Double.doubleToLongBits(other.basePrice))
+            return false;
+        if (Double.doubleToLongBits(price) != Double.doubleToLongBits(other.price))
+            return false;
+        if (ingredientList == null) {
+            if (other.ingredientList != null)
+                return false;
+        } else if (!ingredientList.equals(other.ingredientList))
+            return false;
+        return true;
+    }
+
     // just to remind myself
     // @Override
     // public int compareTo(Coffee coffee) {
     //     return Double.compare(this.getPrice(), coffee.getBasePrice());
     // }
+
+    
     
 }
