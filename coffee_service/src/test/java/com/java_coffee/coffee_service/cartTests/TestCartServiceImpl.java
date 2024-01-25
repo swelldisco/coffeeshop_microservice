@@ -230,17 +230,26 @@ public class TestCartServiceImpl {
     }
 
     // wait, this doesn't exist yet
+    // you know, there's not even anything that can be updated other than adding or removeing orders
+    // going to leave this unfinished test here in case I make the method later
     @Test
     public void testUpdateCart() {
         // given
         Assertions.assertNotNull(testList);
         int testId = 1;
         Cart tempCart = new Cart(testList.get(testId));
+        Cart tempCart2 = new Cart(testList.get(testId));
+        Assertions.assertNotNull(tempCart);
+        Assertions.assertNotNull(tempCart2);
+        tempCart2.setTimeStamp(LocalDateTime.now());
+        tempCart2.addOrderToCart(testOrder1);
+        tempCart2.addOrderToCart(testOrder2);
+        tempCart2.addOrderToCart(testOrder3);
 
         // when
         when(repo.existsByCartId((long)testId)).thenReturn(testList.stream()
             .anyMatch(c -> c.getCartId() == testId));
-        when(repo.save(tempCart)).thenReturn(tempCart);
+        when(repo.save(any(Cart.class))).thenReturn(tempCart2);
         // then
     }
 
