@@ -7,6 +7,8 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
 import com.java_coffee.coffee_service.userStub.UserStub;
 
@@ -35,10 +37,12 @@ public class Cart {
     // there's only a user stub to share info between services, so......
     // @OneToOne(fetch = FetchType.LAZY)
     // private UserStub customer;
-    @Column(name = "user_id")
+    @Column(name = "user_id", unique = true)
     private long userId;
 
     @OneToMany(fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JsonIgnore
     private List<CoffeeOrder> orders;
 
     @Column(name = "timestamp")
@@ -63,16 +67,8 @@ public class Cart {
         return cartId;
     }
 
-    public void setCartId(long cartId) {
-        this.cartId = cartId;
-    }
-
     public long getuserId() {
         return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
     }
 
     public List<CoffeeOrder> getOrders() {
@@ -102,5 +98,38 @@ public class Cart {
     public void removeOrderFromCart(CoffeeOrder coffeeOrder) {
         orders.remove(coffeeOrder);
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (cartId ^ (cartId >>> 32));
+        result = prime * result + (int) (userId ^ (userId >>> 32));
+        result = prime * result + ((timeStamp == null) ? 0 : timeStamp.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Cart other = (Cart) obj;
+        if (cartId != other.cartId)
+            return false;
+        if (userId != other.userId)
+            return false;
+        if (timeStamp == null) {
+            if (other.timeStamp != null)
+                return false;
+        } else if (!timeStamp.equals(other.timeStamp))
+            return false;
+        return true;
+    }
+
+    
 
 }

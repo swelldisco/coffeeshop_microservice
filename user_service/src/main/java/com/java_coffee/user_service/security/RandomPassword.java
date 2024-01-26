@@ -1,4 +1,4 @@
-package com.java_coffee.user_service.helpers;
+package com.java_coffee.user_service.security;
 
 import java.util.Random;
 

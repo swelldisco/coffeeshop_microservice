@@ -1,4 +1,4 @@
-package com.java_coffee.coffee_service.coffee.exceptions;
+package com.java_coffee.coffee_service.exceptions;
 
 public class CoffeeNotFoundException extends RuntimeException {
     

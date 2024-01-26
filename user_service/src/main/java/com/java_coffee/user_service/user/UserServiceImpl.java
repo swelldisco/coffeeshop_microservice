@@ -5,6 +5,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.java_coffee.user_service.exceptions.UserNotFoundException;
@@ -15,14 +18,28 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService, UserDetailsService{
 
-    // I think this is mostly gotten a once over with quick testing 12/30/2023
-    
     @Autowired
     private UserRepository repo;
     @Autowired
     private UserMapper mapper;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user;
+        if (isEmail(username)) {
+            user = new User(checkOptionalUserByEmail(username));
+        } else {
+            user = new User(checkOptionalUserByName(username));
+        }
+
+        return org.springframework.security.core.userdetails.User.builder()
+            .username(user.getEmailAddress())
+            .password(user.getPasswordHash())
+            .roles(user.getRole().toString())
+            .build();
+    }
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -120,15 +137,6 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-    // this needs to force the user to reset their password, either in app or through email link
-    // emergency in case the database gets completely pwned
-    @Override
-    public void resetSalt(long userId) {
-            User user = checkOptionalUserById(userId);
-            user.resetSalt();
-            repo.save(user);
-    }
-
     // I am going to assume for now that the front end can use these to check if a user name or email address is already in use before allowing someone to submit it when creating accounts or changing these fields
     @Override
     public boolean checkUserName(String userName) {
@@ -163,5 +171,6 @@ public class UserServiceImpl implements UserService{
         Matcher emailMatcher = emailPattern.matcher(target);
         return emailMatcher.matches();
     }
+
     
 }

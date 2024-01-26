@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.java_coffee.user_service.security.RandomPassword;
+
 public class RandomPasswordTest {
     private RandomPassword rp;
 

@@ -56,23 +56,18 @@ public class UserServiceImplTest {
         testUser = new User(mapper.mapToUser(testUserDto));
 
         User user1 = new User(0, "Billy_Bob", Role.USER, "B-B@gmail.com", null, null, date1, false, false, null, null, true);
-        user1.resetSalt();
         user1.setPasswordHash("ieaugkfs236432");
 
         User user2 = new User(1, "Jimbo", Role.USER, "Jimbo@mail.ru", null, null, date1, false, false, null, null, true);
-        user2.resetSalt();
         user2.setPasswordHash("euifhdjgfejgfdjag");
 
         User user3 = new User(2, "Cleets", Role.USER, "Anemail@email.com", null, null, date1, false, false, null, null, true);
-        user3.resetSalt();
         user3.setPasswordHash("gfdshjwuegjsd");
 
         User user4 = new User(3, "Jethro", Role.USER, "jgimpy@UofT.edu", null, null, date1, false, false, null, null, true);
-        user4.resetSalt();
         user4.setPasswordHash("wieufd83ye");
 
         User user5 = new User(4, "Bubba", Role.USER, "bubs@mail.ru", null, null, date1, false, false, null, null, true);
-        user5.resetSalt();
         user5.setPasswordHash("uwqeihkjd37842");
 
         testUserList = new ArrayList<>();
@@ -414,36 +409,5 @@ public class UserServiceImplTest {
         Assertions.assertTrue(boolTrue1);
         Assertions.assertTrue(boolTrue2);
     }
-
-    @Test
-    void testResetSalt() {
-        // given
-        Assertions.assertNotNull(testUserList);
-        int testIndex = 1;
-        User checkUser = new User(testUserList.get(testIndex));
-        String resetPassToThisJustToBeSure = "reset_the_pass_word124";
-        String checkEmail = checkUser.getEmailAddress();
-        String checkUserName = checkUser.getUserName();
-
-        // when
-        when(repo.findByUserId(testIndex)).thenReturn(Optional.of(testUserList.get(testIndex)));
-        when(repo.findByEmailAddressIgnoreCase(checkEmail)).thenReturn(Optional.of(testUserList.get(testIndex)));
-        when(repo.findByUserNameIgnoreCase(checkUserName)).thenReturn(Optional.of(testUserList.get(testIndex)));
-        when(repo.save(any(User.class))).thenReturn(checkUser);
-        service.resetSalt(testIndex);
-        
-        // then
-        // asserting the calls twice because you need to change the password after resetting the salt
-        verify(repo, times(1)).findByUserId(testIndex);
-        verify(repo, times(1)).save(any(User.class));
-
-        // password verification should fail after resetting salt and before the password has been reset with the new salt
-        Assertions.assertFalse(service.verifyPassword(resetPassToThisJustToBeSure, checkUserName));
-        // once password is changed following a salt reset, verification should once again work
-        service.changePassword(resetPassToThisJustToBeSure, testIndex);
-        Assertions.assertTrue(service.verifyPassword(resetPassToThisJustToBeSure, checkUserName));
-        
-    }
-
 
 }

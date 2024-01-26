@@ -24,10 +24,10 @@ import org.mockito.quality.Strictness;
 import com.java_coffee.coffee_service.cart.Cart;
 import com.java_coffee.coffee_service.cart.CartRepository;
 import com.java_coffee.coffee_service.cart.CartServiceImpl;
-import com.java_coffee.coffee_service.cart.exceptions.CartNotFoundException;
 import com.java_coffee.coffee_service.coffee.Coffee;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
+import com.java_coffee.coffee_service.exceptions.CartNotFoundException;
 import com.java_coffee.coffee_service.userStub.UserStub;
 
 @ExtendWith(MockitoExtension.class)

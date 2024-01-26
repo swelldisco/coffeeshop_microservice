@@ -25,7 +25,7 @@ import com.java_coffee.coffee_service.coffee.Coffee;
 import com.java_coffee.coffee_service.coffee.CoffeeRepository;
 import com.java_coffee.coffee_service.coffee.CoffeeServiceImpl;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
-import com.java_coffee.coffee_service.coffee.exceptions.CoffeeNotFoundException;
+import com.java_coffee.coffee_service.exceptions.CoffeeNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)

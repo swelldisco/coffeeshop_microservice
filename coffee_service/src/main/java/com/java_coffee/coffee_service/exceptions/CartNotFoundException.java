@@ -1,4 +1,4 @@
-package com.java_coffee.coffee_service.cart.exceptions;
+package com.java_coffee.coffee_service.exceptions;
 
 public class CartNotFoundException extends RuntimeException{
 

@@ -3,9 +3,10 @@ package com.java_coffee.user_service.user;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.java_coffee.user_service.helpers.Argon2PasswordEncoder;
+
 import com.java_coffee.user_service.user.constants.Role;
 
 import jakarta.persistence.Column;
@@ -24,9 +25,9 @@ import jakarta.validation.constraints.Size;
 @Table(name = "_users")
 public class User {
 
-    // right now, generating salts, hashing and verifying is done by the User object
+    // right now hashing and verifying is done by the User object
     @Transient
-    private Argon2PasswordEncoder encoder = new Argon2PasswordEncoder();
+    private Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
 
     @Id
     @Column(name = "user_id")
@@ -57,13 +58,10 @@ public class User {
     @Size(min = 1, max = 35, message = "Last name cannot be longer than 35 characters.")
     private String lastName;
 
-    @Column(name = "password_hash", nullable = false, length = 344)
+    @Column(name = "password_hash", nullable = false, length = 97)
     @NotEmpty(message = "Password cannot be left empty.")
     @NotBlank(message = "Password cannot be left blank.")
     private String passwordHash;
-
-    @Column(name = "salt", nullable = false, length = 88)
-    private String salt;
 
     @Column(name = "join_date")
     @CreationTimestamp
@@ -85,16 +83,13 @@ public class User {
     @Column(name = "is_confirmed", nullable = false, columnDefinition = "boolean default false")
     private boolean isConfirmed;
 
-    // user needs a list of orders once I talk with Ajmal about doing this
-
     protected User() {}
 
     protected User(String userName, String emailAddress, String password) {
         this.userName = userName;
         this.emailAddress = emailAddress;
         this.role = Role.USER;
-        this.salt = encoder.generateSalt();
-        this.passwordHash = encoder.hash(password, salt);
+        this.passwordHash = encoder.encode(password);
         this.joinDate = LocalDateTime.now();
         this.isBanned = false;
         this.isSuspended = false;
@@ -109,7 +104,6 @@ public class User {
         this.firstName = source.firstName;
         this.lastName = source.lastName;
         this.passwordHash = source.passwordHash;
-        this.salt = source.salt;
         this.joinDate = source.joinDate;
         this.isBanned = source.isBanned;
         this.isSuspended = source.isSuspended;
@@ -125,7 +119,6 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.passwordHash = null;
-        this.salt = null;
         this.joinDate = joinDate;
         this.isBanned = isBanned;
         this.isSuspended = isSuspended;
@@ -183,11 +176,7 @@ public class User {
     }
 
     protected void setPasswordHash(String password) {
-        this.passwordHash = encoder.hash(password, salt);
-    }
-
-    protected void resetSalt() {
-        this.salt = encoder.generateSalt();
+        this.passwordHash = encoder.encode(password);
     }
 
     protected LocalDateTime getJoinDate() {
@@ -236,30 +225,26 @@ public class User {
 
     // Verify if the password used to logon matches the hash
     protected boolean verifyPassword(String password) {
-        return encoder.verify(password, salt, passwordHash);
-    }
-
-    // fix this so it's not giving out sensitive data once I no longer need to make sure it's actually hashing passwords and making salts properly
-    @Override
-    public String toString() {
-        return "user id: " + userId + " user name: " + userName + "\n\tpassword hash: " + passwordHash + "\n\tsalt: " + salt
-            + "\n\temail address: " + emailAddress
-            + "\n\tuser type: " + role.toString()
-            + "\n\tfirst name: " + firstName
-            + "\n\tlast name: " + lastName
-            + "\n\tis user banned: " + isBanned
-            + "\n\tis user suspended: " + isSuspended
-            + "\n\tis email confirmed: " + isConfirmed;
+        return encoder.matches(password, passwordHash);
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + (int) (userId ^ (userId >>> 32));
         result = prime * result + ((userName == null) ? 0 : userName.hashCode());
         result = prime * result + ((role == null) ? 0 : role.hashCode());
         result = prime * result + ((emailAddress == null) ? 0 : emailAddress.hashCode());
+        result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
+        result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
+        result = prime * result + ((passwordHash == null) ? 0 : passwordHash.hashCode());
         result = prime * result + ((joinDate == null) ? 0 : joinDate.hashCode());
+        result = prime * result + (isBanned ? 1231 : 1237);
+        result = prime * result + (isSuspended ? 1231 : 1237);
+        result = prime * result + ((suspensionDate == null) ? 0 : suspensionDate.hashCode());
+        result = prime * result + ((suspensionExpiration == null) ? 0 : suspensionExpiration.hashCode());
+        result = prime * result + (isConfirmed ? 1231 : 1237);
         return result;
     }
 
@@ -272,6 +257,8 @@ public class User {
         if (getClass() != obj.getClass())
             return false;
         User other = (User) obj;
+        if (userId != other.userId)
+            return false;
         if (userName == null) {
             if (other.userName != null)
                 return false;
@@ -284,14 +271,46 @@ public class User {
                 return false;
         } else if (!emailAddress.equals(other.emailAddress))
             return false;
+        if (firstName == null) {
+            if (other.firstName != null)
+                return false;
+        } else if (!firstName.equals(other.firstName))
+            return false;
+        if (lastName == null) {
+            if (other.lastName != null)
+                return false;
+        } else if (!lastName.equals(other.lastName))
+            return false;
+        if (passwordHash == null) {
+            if (other.passwordHash != null)
+                return false;
+        } else if (!passwordHash.equals(other.passwordHash))
+            return false;
         if (joinDate == null) {
             if (other.joinDate != null)
                 return false;
         } else if (!joinDate.equals(other.joinDate))
             return false;
+        if (isBanned != other.isBanned)
+            return false;
+        if (isSuspended != other.isSuspended)
+            return false;
+        if (suspensionDate == null) {
+            if (other.suspensionDate != null)
+                return false;
+        } else if (!suspensionDate.equals(other.suspensionDate))
+            return false;
+        if (suspensionExpiration == null) {
+            if (other.suspensionExpiration != null)
+                return false;
+        } else if (!suspensionExpiration.equals(other.suspensionExpiration))
+            return false;
+        if (isConfirmed != other.isConfirmed)
+            return false;
         return true;
     }
 
+    
     
     
 }

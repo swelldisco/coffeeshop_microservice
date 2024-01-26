@@ -1,11 +1,11 @@
 package com.java_coffee.coffee_service.coffeeOrder;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.java_coffee.coffee_service.cart.Cart;
 import com.java_coffee.coffee_service.coffee.Coffee;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,12 +27,13 @@ public class CoffeeOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long orderId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "coffee_id", nullable = false, foreignKey = @ForeignKey(name = "order_coffee_fk"))
     private Coffee coffee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name =  "cart_id", nullable = false, foreignKey = @ForeignKey(name = "order_cart_fk"))
+    @JsonBackReference
     private Cart cart;
 
     @Column(name = "quantity", nullable = false)
@@ -116,5 +117,6 @@ public class CoffeeOrder {
         return true;
     }
 
+   
     
 }

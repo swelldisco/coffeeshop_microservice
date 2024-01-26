@@ -114,26 +114,10 @@ public class UserTests {
         Assertions.assertEquals(newName, testUser.getLastName());
     }
 
-    // getSalt() doesn't exist and probably shouldn't, so this is just to check that salts are being properly generated and reset
-    // @Test
-    // void testResetSalt() {
-    //     String salt1 = testUser.getSalt();
-        
-    //     testUser.resetSalt();
-
-    //     Assertions.assertNotEquals(salt1, testUser.getSalt());
-    // }
-
-    // @Test
-    // void testGetSalt() {
-    //     Assertions.assertNotNull(testUser.getSalt());
-    //     Assertions.assertEquals(88, testUser.getSalt().length());
-    // }
-
     @Test
     void testGetPasswordHash() {
         Assertions.assertNotNull(testUser.getPasswordHash());
-        Assertions.assertEquals(344, testUser.getPasswordHash().length());
+        Assertions.assertEquals(97, testUser.getPasswordHash().length());
     }
 
     @Test
@@ -150,7 +134,7 @@ public class UserTests {
         Assertions.assertNotEquals(newPw, testUser.getPasswordHash());
         Assertions.assertNotEquals(newPw, newHash);
         Assertions.assertEquals(newHash, testUser.getPasswordHash());
-        Assertions.assertEquals(344, testUser.getPasswordHash().length());
+        Assertions.assertEquals(97, testUser.getPasswordHash().length());
     }
 
     @Test

@@ -17,7 +17,6 @@ public interface UserService {
     boolean verifyPassword(String password, String identifier);
     void changePassword(String password, long userId);
     String resetPassword(String identifier);
-    void resetSalt(long userId);
 
     // I think these might be useful to the front end for registration or updating accounts
     boolean checkUserName(String userName);
