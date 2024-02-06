@@ -5,66 +5,98 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
+import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderDto;
+import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderService;
+import com.java_coffee.coffee_service.exceptions.CartMismatchException;
 import com.java_coffee.coffee_service.exceptions.CartNotFoundException;
+import com.java_coffee.coffee_service.exceptions.OrderNotFoundException;
+import com.java_coffee.coffee_service.mapper.CoffeeMapper;
 import com.java_coffee.coffee_service.userStub.UserStub;
 
-@Service
-public class CartServiceImpl implements CartService{
+import lombok.AllArgsConstructor;
 
+@Service
+@AllArgsConstructor
+public class CartServiceImpl implements CartService{
+    @Autowired
+    private CoffeeMapper mapper;
     @Autowired
     private CartRepository repo;
+    @Autowired
+    private CoffeeOrderService orderService;
 
     @Override
-    public Cart createCart(UserStub userStub) {
+    public CartDto createCart(UserStub userStub) {
         Cart cart = new Cart(userStub);
-        return repo.save(cart);
+        return mapper.mapToCartDto(repo.save(cart));
     }
 
     @Override
-    public Cart getCartById(long cartId) {
-        return digThroughOptionalCart(cartId);
+    public CartDto getCartById(long cartId) {
+        return mapper.mapToCartDto(digThroughOptionalCart(cartId));
     }
 
     @Override
-    public Cart getCartByUserId(long userId) {
-        return rudelyInvestigateAUsersCart(userId);
+    public CartDto getCartByUserId(long userId) {
+        return mapper.mapToCartDto(rudelyInvestigateAUsersCart(userId));
     }
 
     @Override
-    public List<Cart> getAllCarts() {
+    public List<CartDto> getAllCarts() {
         if (repo.findAll() != null && !repo.findAll().isEmpty()) {
-            return repo.findAll();
+            return repo.findAll().stream()
+                .map(c -> mapper.mapToCartDto(c))
+                .toList();
         } else {
             throw new CartNotFoundException();
         }
     }
 
     @Override
-    public Cart addItemToCart(Cart cart, CoffeeOrder coffeeOrder) {
-        if (repo.existsByCartId(cart.getCartId())) {
-            cart.addOrderToCart(coffeeOrder);
-            return repo.save(cart);
+    public CartDto addItemToCart(long cartId, CoffeeOrderDto coffeeOrderDto) {
+        if (repo.existsByCartId(cartId)) {
+            if (coffeeOrderDto.cartId() == cartId) {
+                Cart cart = digThroughOptionalCart(cartId);
+                cart.addOrderToCart(mapper.mapToCoffeeOrder(coffeeOrderDto));
+                return mapper.mapToCartDto(repo.save(cart));
+            } else {
+                throw new CartMismatchException();
+            }
         } else {
             throw new CartNotFoundException();
         }
     }
 
     @Override
-    public Cart removeItemFromCart(Cart cart, CoffeeOrder coffeeOrder) {
-        if (repo.existsByCartId(cart.getCartId())) {
-            cart.removeOrderFromCart(coffeeOrder);
-            return repo.save(cart);
+    public CartDto removeItemFromCart(long cartId, CoffeeOrderDto coffeeOrderDto) {
+        if (repo.existsByCartId(cartId)) {
+            Cart cart = digThroughOptionalCart(cartId);
+            if (cart.getOrders().contains(mapper.mapToCoffeeOrder(coffeeOrderDto))) {
+                cart.removeOrderFromCart(mapper.mapToCoffeeOrder(coffeeOrderDto));
+                orderService.deleteOrderById(coffeeOrderDto.orderId());
+                return mapper.mapToCartDto(repo.save(cart));
+            } else {
+                throw new OrderNotFoundException();
+            }
         } else {
             throw new CartNotFoundException();
         }
     }
 
     @Override
-    public Cart clearCart(Cart cart) {
-        if (repo.existsByCartId(cart.getCartId())) {
-            cart.emptyCart();
-            return repo.save(cart);
+    public CartDto clearCart(long cartId) {
+        if (repo.existsByCartId(cartId)) {
+            Cart cart = digThroughOptionalCart(cartId);
+            if (cart.getOrders() != null && !cart.getOrders().isEmpty()) {
+                List<Long> orderIds = cart.getOrders().stream()
+                    .map(o -> o.getOrderId())
+                    .toList();
+                cart.emptyCart();
+                for (long orderId : orderIds) {
+                    orderService.deleteOrderById(orderId);
+                }
+            }
+            return mapper.mapToCartDto(repo.save(cart));
         } else {
             throw new CartNotFoundException();
         }
@@ -73,6 +105,14 @@ public class CartServiceImpl implements CartService{
     @Override
     public void deleteCartById(long cartId) {
         if (repo.existsByCartId(cartId)) {
+            List<Long> orderIds = orderService.getOrderByCartId(cartId).stream()
+                .map(o -> o.orderId())
+                .toList();
+            if (orderIds != null && !orderIds.isEmpty()) {
+                for (long orderId : orderIds) {
+                    orderService.deleteOrderById(orderId);
+                }
+            }
             repo.deleteByCartId(cartId);
         } else {
             throw new CartNotFoundException();

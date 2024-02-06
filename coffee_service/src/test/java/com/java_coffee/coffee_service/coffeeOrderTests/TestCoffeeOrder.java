@@ -43,7 +43,7 @@ public class TestCoffeeOrder {
 
         Assertions.assertNotNull(testCoffeeOrder);
         Assertions.assertEquals(testCoffeeOrder.getCoffee(), testCoffee);
-        Assertions.assertEquals(testCoffeeOrder.getCart(), testCart);
+        Assertions.assertEquals(testCoffeeOrder.getCartId(), testCart.getCartId());
         Assertions.assertEquals(testCoffeeOrder.getQuantity(), 1);
     }
 

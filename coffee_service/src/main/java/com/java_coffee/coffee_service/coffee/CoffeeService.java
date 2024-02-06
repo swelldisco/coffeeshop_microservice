@@ -4,10 +4,12 @@ import java.util.List;
 
 public interface CoffeeService {
     
-    Coffee createCoffee(Coffee coffee);
-    Coffee findCoffeeById(long coffeeId);
-    List<Coffee> findAllCoffees();
-    List<Coffee> findAllByName(String name);
-    Coffee updateCoffee(long coffeeId, Coffee coffee);
+    CoffeeDto createCoffee(CoffeeDto coffeeDto);
+    CoffeeDto findCoffeeById(long coffeeId);
+    List<CoffeeDto> findAllCoffees();
+    List<CoffeeDto> findAllByName(String name);
+    CoffeeDto updateCoffee(long coffeeId, CoffeeDto coffeeDto);
     void deleteCoffeeById(long coffeeId);
+
+    void initializeMenu();
 }

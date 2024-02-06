@@ -1,5 +1,6 @@
 package com.java_coffee.coffee_service.coffeeTests;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,22 +23,32 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.java_coffee.coffee_service.coffee.Coffee;
+import com.java_coffee.coffee_service.coffee.CoffeeDto;
 import com.java_coffee.coffee_service.coffee.CoffeeRepository;
 import com.java_coffee.coffee_service.coffee.CoffeeServiceImpl;
+import com.java_coffee.coffee_service.coffee.MenuItems;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.exceptions.CoffeeNotFoundException;
+import com.java_coffee.coffee_service.mapper.CoffeeMapper;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class TestCoffeeServiceImpl {
     
+    private CoffeeMapper mapper = new CoffeeMapper();
+
+    private MenuItems menuItems = new MenuItems();
+    
     @Mock(name = "database")
     private CoffeeRepository repo;
 
     @InjectMocks
-    private CoffeeServiceImpl service;
+    private CoffeeServiceImpl service = new CoffeeServiceImpl(mapper, repo, menuItems);
+
+
 
     List<Coffee> testCoffeeList;
+    CoffeeDto testCoffeeDto;
     Coffee testCoffee;
 
     @BeforeEach
@@ -77,29 +88,31 @@ public class TestCoffeeServiceImpl {
             new Coffee(17L, CoffeeSize.TALL, "Espresso", 2.00, ing5)
         );
 
+        testCoffeeDto = new CoffeeDto(0L, CoffeeSize.SHORT, "Test Coffee", 1.50, 0, null);
         testCoffee = new Coffee(0L, CoffeeSize.SHORT, "Test Coffee", 1.50, null);
     }
 
     @AfterEach
     public void tearDown() {
         testCoffeeList = null;
+        testCoffeeDto = null;
         testCoffee = null;
     }
 
     @Test
     public void testCreateCoffee() {
         // given
-        Assertions.assertNotNull(testCoffee);
+        Assertions.assertNotNull(testCoffeeDto);
         List<Coffee> anFreshTestList = new ArrayList<>();
         int testIndex = (int)testCoffee.getCoffeeId();
         anFreshTestList.add(testCoffee);
         Assertions.assertNotNull(anFreshTestList.get(testIndex));
 
         // when
-        when(repo.save(testCoffee)).thenReturn(testCoffee);
+        when(repo.save(any(Coffee.class))).thenReturn(testCoffee);
         when(repo.findById((long)testIndex)).thenReturn(Optional.of(anFreshTestList.get(testIndex)));
         when(repo.findAll()).thenReturn(anFreshTestList);
-        Coffee savedCoffee = service.createCoffee(testCoffee);
+        Coffee savedCoffee = mapper.mapToCoffee(service.createCoffee(testCoffeeDto));
 
         // then
         Assertions.assertNotNull(savedCoffee);
@@ -117,7 +130,7 @@ public class TestCoffeeServiceImpl {
 
         // when
         when(repo.findById((long)testIndex)).thenReturn(Optional.of(testCoffeeList.get(testIndex)));
-        Coffee aCoffee = service.findCoffeeById(testIndex);
+        Coffee aCoffee = mapper.mapToCoffee(service.findCoffeeById(testIndex));
 
         // then
         Assertions.assertNotNull(aCoffee);
@@ -134,7 +147,9 @@ public class TestCoffeeServiceImpl {
 
         // when
         when(repo.findAll()).thenReturn(testCoffeeList);
-        List<Coffee> checkList = service.findAllCoffees();
+        List<Coffee> checkList = service.findAllCoffees().stream()
+            .map(c -> mapper.mapToCoffee(c))
+            .toList();
 
         //then
         Assertions.assertNotNull(checkList);
@@ -156,7 +171,9 @@ public class TestCoffeeServiceImpl {
         when(repo.findAllByDrinkNameIgnoringCase(testCoffeeName2)).thenReturn(testCoffeeList.stream()
             .filter(c -> c.getDrinkName().toLowerCase().contains(testCoffeeName2.toLowerCase()))
             .toList());
-        List<Coffee> mochaList = service.findAllByName(testCoffeeName1);
+        List<Coffee> mochaList = service.findAllByName(testCoffeeName1).stream()
+            .map(c -> mapper.mapToCoffee(c))
+            .toList();
 
         // then
         Assertions.assertThrowsExactly(CoffeeNotFoundException.class, () -> service.findAllByName(testCoffeeName2));
@@ -177,13 +194,14 @@ public class TestCoffeeServiceImpl {
         tempCoffee1.setSize(CoffeeSize.VENTI);
         tempCoffee1.setPrice();
         Assertions.assertNotEquals(tempCoffee1, tempCoffee2);
+        CoffeeDto tempDto = mapper.mapToCoffeeDto(tempCoffee1);
 
         // when
         when(repo.findById((long)testId)).thenReturn(Optional.of(testCoffeeList.get(testId)));
-        when(repo.save(tempCoffee1)).thenReturn(tempCoffee1);
+        when(repo.save(any(Coffee.class))).thenReturn(tempCoffee1);
         when(repo.existsByCoffeeId(testId)).thenReturn(testCoffeeList.stream()
             .anyMatch(c -> c.getCoffeeId() == testId));
-        Coffee tempCoffee3 = service.updateCoffee((long)testId, tempCoffee1);
+        Coffee tempCoffee3 = mapper.mapToCoffee(service.updateCoffee((long)testId, tempDto));
 
         // then
         Assertions.assertNotNull(tempCoffee3);
@@ -207,6 +225,12 @@ public class TestCoffeeServiceImpl {
         // then
         verify(repo, times(1)).existsByCoffeeId(testIndex);
         verify(repo, times(1)).deleteByCoffeeId(testIndex);
+    }
+
+    @Test
+    public void testInitializeMenu() {
+        // given
+        // yeah, I know I need to test this, but I cannot brain
     }
 
 }

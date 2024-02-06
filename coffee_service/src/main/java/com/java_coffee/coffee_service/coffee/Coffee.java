@@ -12,6 +12,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 // @Table(name = "coffee")
@@ -25,12 +28,20 @@ public class Coffee{
     private long coffeeId;
 
     @Column(name = "size")
+    @NotBlank(message = "All coffee must have a size.")
+    @NotEmpty(message = "All coffee must have a size.")
+    @NotNull(message = "All coffee must have a size.")
     private CoffeeSize size;
 
     @Column(name = "drink_name", nullable = false, length = 50, unique = true)
+    @NotBlank(message = "Drink name cannot be left blank.")
+    @NotEmpty(message = "Drink name cannot be left empty.")
+    @NotNull(message = "Drink name cannot be left null.")
     private String drinkName;
 
     @Column(name = "base_price", nullable = false, length = 7)
+    @NotBlank(message = "All drinks must have a base price.")
+    @NotEmpty(message = "All drinks must have a base price.")
     private double basePrice;
 
     @Column(name = "price")

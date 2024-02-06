@@ -1,14 +1,15 @@
 package com.java_coffee.coffee_service.cartTests;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -27,18 +28,27 @@ import com.java_coffee.coffee_service.cart.CartServiceImpl;
 import com.java_coffee.coffee_service.coffee.Coffee;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
+import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderService;
+import com.java_coffee.coffee_service.exceptions.CartMismatchException;
 import com.java_coffee.coffee_service.exceptions.CartNotFoundException;
+import com.java_coffee.coffee_service.exceptions.OrderNotFoundException;
+import com.java_coffee.coffee_service.mapper.CoffeeMapper;
 import com.java_coffee.coffee_service.userStub.UserStub;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class TestCartServiceImpl {
 
+    private CoffeeMapper mapper = new CoffeeMapper();
+    
+    @Mock(name = "order_service")
+    private CoffeeOrderService orderService;
+
     @Mock(name = "database")
     private CartRepository repo;
 
     @InjectMocks
-    private CartServiceImpl service;
+    private CartServiceImpl service = new CartServiceImpl(mapper, repo, orderService);
 
     private UserStub testUser1;
     private UserStub testUser2;
@@ -52,28 +62,46 @@ public class TestCartServiceImpl {
     private CoffeeOrder testOrder1;
     private CoffeeOrder testOrder2;
     private CoffeeOrder testOrder3;
+    private CoffeeOrder testOrder4;
+    private CoffeeOrder testOrder5;
+    private CoffeeOrder testOrder6;
+    private CoffeeOrder testOrder7;
     private List<Cart> testList;
+    private List<CoffeeOrder> testOrderList;
 
     @BeforeEach
     public void setUp() {
         testUser1 = new UserStub(0L, "Billy_Bob");
         testUser2 = new UserStub(1L, "Jim_Bob");
         testUser3 = new UserStub(2L, "Bubba");
-        testCart1 = new Cart(0L, testUser1.getUserId(), new ArrayList<CoffeeOrder>(), LocalDateTime.now());
-        testCart2 = new Cart(1L, testUser2.getUserId(), new ArrayList<CoffeeOrder>(), LocalDateTime.now());
-        testCart3 = new Cart(2L, testUser3.getUserId(), new ArrayList<CoffeeOrder>(), LocalDateTime.now());
+        testCart1 = new Cart(0L, testUser1.getUserId(), new ArrayList<CoffeeOrder>());
+        testCart2 = new Cart(1L, testUser2.getUserId(), new ArrayList<CoffeeOrder>());
+        testCart3 = new Cart(2L, testUser3.getUserId(), new ArrayList<CoffeeOrder>());
         testCoffee1 = new Coffee(0L, CoffeeSize.SHORT, "Test Latte", 1.50, null);
         testCoffee2 = new Coffee(1L, CoffeeSize.GRANDE, "Test Mocha", 1.50, null);
         testCoffee3 = new Coffee(2L, CoffeeSize.TALL, "Test Macchiato", 1.50, null);
         testOrder1 = new CoffeeOrder(testCoffee1, testCart1, 3);
         testOrder2 = new CoffeeOrder(testCoffee2, testCart2, 1);
         testOrder3 = new CoffeeOrder(testCoffee3, testCart3, 5);
+        testOrder4 = new CoffeeOrder(testCoffee1, testCart2, 1);
+        testOrder5 = new CoffeeOrder(testCoffee3, testCart2, 1);
+        testOrder6 = new CoffeeOrder(testCoffee2, testCart1, 1);
+        testOrder7 = new CoffeeOrder(testCoffee3, testCart1, 1);
         testList = new ArrayList<>();
         testList.add(testCart1);
         testList.add(testCart2);
         testList.add(testCart3);
         
         testCart2.addOrderToCart(testOrder2);
+
+        testOrderList = new ArrayList<>();
+        testOrderList.add(testOrder1);
+        testOrderList.add(testOrder2);
+        testOrderList.add(testOrder3);
+        testOrderList.add(testOrder4);
+        testOrderList.add(testOrder5);
+        testOrderList.add(testOrder6);
+        testOrderList.add(testOrder7);
         
     }
 
@@ -91,7 +119,12 @@ public class TestCartServiceImpl {
         testOrder1 = null;
         testOrder2 = null;
         testOrder3 = null;
+        testOrder4 = null;
+        testOrder5 = null;
+        testOrder6 = null;
+        testOrder7 = null;
         testList = null;
+        testOrderList = null;
     }
     
     @Test
@@ -103,7 +136,7 @@ public class TestCartServiceImpl {
 
         // when
         when(repo.save(any(Cart.class))).thenReturn(testCart1);
-        Cart tempCart = service.createCart(testUser1);
+        Cart tempCart = mapper.mapToCart(service.createCart(testUser1));
         
         // then
         Assertions.assertNotNull(tempCart);
@@ -123,7 +156,7 @@ public class TestCartServiceImpl {
         when(repo.findById((long)testIndex)).thenReturn(testList.stream()
         .filter(c -> c.getCartId() == testIndex)
         .findAny());
-        Cart tempCart2 = new Cart(service.getCartById((long)testIndex));
+        Cart tempCart2 = new Cart(mapper.mapToCart(service.getCartById((long)testIndex)));
 
         // then
         Assertions.assertNotNull(tempCart2);
@@ -144,7 +177,7 @@ public class TestCartServiceImpl {
         when(repo.findCartByUserId(testId)).thenReturn(testList.stream()
             .filter(c -> c.getuserId() == testId)
             .findFirst());
-        Cart tempCart = new Cart(service.getCartByUserId((long)testId));
+        Cart tempCart = new Cart(mapper.mapToCart(service.getCartByUserId((long)testId)));
 
         // then
         Assertions.assertNotNull(tempCart);
@@ -161,7 +194,9 @@ public class TestCartServiceImpl {
 
         // when
         when(repo.findAll()).thenReturn(testList);
-        List<Cart> tempList = service.getAllCarts();
+        List<Cart> tempList = service.getAllCarts().stream()
+            .map(c -> mapper.mapToCart(c))
+            .toList();
 
         // then
         Assertions.assertNotNull(tempList);
@@ -175,20 +210,24 @@ public class TestCartServiceImpl {
         Assertions.assertNotNull(testCart1);
         Assertions.assertNotNull(testOrder1);
         Assertions.assertNotNull(testOrder2);
-        Assertions.assertNotNull(testOrder3);
+        Assertions.assertNotNull(testOrder6);
+        Assertions.assertNotNull(testOrder7);
+        int testId = (int)testCart1.getCartId();
 
         // when
-        when(repo.existsByCartId(testCart1.getCartId())).thenReturn(testList.stream()
-        .anyMatch(c -> c.getCartId() == testCart1.getCartId()));
+        when(repo.existsByCartId((long)testId)).thenReturn(testList.stream()
+            .anyMatch(c -> c.getCartId() == (long)testId));
+        when(repo.findById((long)testId)).thenReturn(Optional.of(testCart1));
         when(repo.save(testCart1)).thenReturn(testCart1);
-        service.addItemToCart(testCart1, testOrder1);
-        service.addItemToCart(testCart1, testOrder2);
-        service.addItemToCart(testCart1, testOrder3);
+        service.addItemToCart((long)testId, mapper.mapToCoffeeOrderDto(testOrder1));
+        service.addItemToCart((long)testId, mapper.mapToCoffeeOrderDto(testOrder6));
+        service.addItemToCart((long)testId, mapper.mapToCoffeeOrderDto(testOrder7));
 
         //then
         Assertions.assertNotNull(testCart1.getOrders());
         Assertions.assertEquals(testCart1.getOrders().size(), 3);
-        Assertions.assertEquals(testCart1.getOrders().get(1), testOrder2);
+        Assertions.assertEquals(testCart1.getOrders().get(1), testOrder6);
+        Assertions.assertThrowsExactly(CartMismatchException.class, () -> service.addItemToCart(testId, mapper.mapToCoffeeOrderDto(testOrder2)));
     }
 
     @Test
@@ -202,12 +241,16 @@ public class TestCartServiceImpl {
         // when
         when(repo.existsByCartId((long)testId)).thenReturn(testList.stream()
             .anyMatch(c -> c.getCartId() == testId));
+        when(repo.findById((long)testId)).thenReturn(Optional.of(testCart2));
         when(repo.save(testCart2)).thenReturn(testCart2);
-        service.removeItemFromCart(testCart2, testOrder2);
+        doNothing().when(orderService).deleteOrderById(testOrder2.getOrderId());
+        service.removeItemFromCart((long)testId, mapper.mapToCoffeeOrderDto(testOrder2));
 
         // then
         Assertions.assertNotNull(testCart2.getOrders());
         Assertions.assertEquals(testCart2.getOrders().size(), 0);
+        Assertions.assertThrowsExactly(OrderNotFoundException.class, () -> service.removeItemFromCart(testId, mapper.mapToCoffeeOrderDto(testOrder3)));
+        verify(orderService, times(1)).deleteOrderById(testOrder2.getOrderId());
     }
 
     @Test
@@ -216,17 +259,21 @@ public class TestCartServiceImpl {
         Assertions.assertNotNull(testList);
         Assertions.assertNotNull(testCart2.getOrders());
         Assertions.assertEquals(testCart2.getOrders().size(), 1);
+        int cartSize = testCart2.getOrders().size();
         int testId = (int)testCart2.getCartId();
 
         // when
         when(repo.existsByCartId((long)testId)).thenReturn(testList.stream()
             .anyMatch(c -> c.getCartId() == testId));
+        when(repo.findById((long)testId)).thenReturn(Optional.of(testCart2));
         when(repo.save(testCart2)).thenReturn(testCart2);
-        service.clearCart(testCart2);
+        doNothing().when(orderService).deleteOrderById(anyLong());
+        service.clearCart((long)testId);
 
         // then
         Assertions.assertNotNull(testCart2.getOrders());
         Assertions.assertEquals(testCart2.getOrders().size(), 0);
+        verify(orderService, times(cartSize)).deleteOrderById(anyLong());
     }
 
     // wait, this doesn't exist yet
@@ -241,10 +288,10 @@ public class TestCartServiceImpl {
         Cart tempCart2 = new Cart(testList.get(testId));
         Assertions.assertNotNull(tempCart);
         Assertions.assertNotNull(tempCart2);
-        tempCart2.setTimeStamp(LocalDateTime.now());
-        tempCart2.addOrderToCart(testOrder1);
+        // tempCart2.setTimeStamp(LocalDateTime.now());
+        tempCart2.addOrderToCart(testOrder4);
         tempCart2.addOrderToCart(testOrder2);
-        tempCart2.addOrderToCart(testOrder3);
+        tempCart2.addOrderToCart(testOrder5);
 
         // when
         when(repo.existsByCartId((long)testId)).thenReturn(testList.stream()
@@ -257,18 +304,28 @@ public class TestCartServiceImpl {
     public void testDeleteCartById() {
         // given
         Assertions.assertNotNull(testList);
+        Assertions.assertNotNull(testOrderList);
         int testId = 1;
         Assertions.assertNotNull(testList.get(testId));
+        List<CoffeeOrder> tempList = testList.get(testId).getOrders();
+        int cartSize = testList.get(testId).getOrders().size();
+        Assertions.assertEquals(tempList.size(), cartSize);
 
         // when
         when(repo.existsByCartId((long)testId)).thenReturn(testList.stream()
             .anyMatch(c -> c.getCartId() == testId));
+        when(orderService.getOrderByCartId(testId)).thenReturn(tempList.stream()
+            .map(o -> mapper.mapToCoffeeOrderDto(o))
+            .toList());
+        doNothing().when(orderService).deleteOrderById(anyLong());
         doNothing().when(repo).deleteByCartId((long)testId);
         service.deleteCartById(testId);
 
         // then
         verify(repo, times(1)).existsByCartId((long)testId);
         verify(repo, times(1)).deleteByCartId((long)testId);
+        verify(orderService, times(cartSize)).deleteOrderById(anyLong());
+        verify(orderService, times(1)).getOrderByCartId((long)testId);
         Assertions.assertThrowsExactly(CartNotFoundException.class, () -> service.deleteCartById(8523L));
     }
 

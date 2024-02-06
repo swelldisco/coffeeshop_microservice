@@ -1,14 +1,9 @@
 package com.java_coffee.coffee_service.cart;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.CreationTimestamp;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
 import com.java_coffee.coffee_service.userStub.UserStub;
 
@@ -40,27 +35,21 @@ public class Cart {
     @Column(name = "user_id", unique = true)
     private long userId;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cartId")
+    //@JsonManagedReference
     @JsonIgnore
     private List<CoffeeOrder> orders;
 
-    @Column(name = "timestamp")
-    @CreationTimestamp
-    @JsonFormat(pattern="MM-dd-yyyy HH:mm:ss")
-    private LocalDateTime timeStamp;
 
     public Cart(UserStub customer) {
         this.userId = customer.getUserId();
         this.orders = new ArrayList<CoffeeOrder>();
-        timeStamp = LocalDateTime.now();
     }
 
     public Cart(Cart source) {
         this.cartId = source.cartId;
         this.userId = source.userId;
         this.orders = source.orders;
-        this.timeStamp = source.timeStamp;
     }
 
     public long getCartId() {
@@ -75,16 +64,9 @@ public class Cart {
         return orders;
     }
 
+
     public void setOrders(List<CoffeeOrder> orders) {
         this.orders = orders;
-    }
-
-    public LocalDateTime getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(LocalDateTime timeStamp) {
-        this.timeStamp = timeStamp;
     }
 
     public void emptyCart() {
@@ -105,7 +87,6 @@ public class Cart {
         int result = 1;
         result = prime * result + (int) (cartId ^ (cartId >>> 32));
         result = prime * result + (int) (userId ^ (userId >>> 32));
-        result = prime * result + ((timeStamp == null) ? 0 : timeStamp.hashCode());
         return result;
     }
 
@@ -122,14 +103,8 @@ public class Cart {
             return false;
         if (userId != other.userId)
             return false;
-        if (timeStamp == null) {
-            if (other.timeStamp != null)
-                return false;
-        } else if (!timeStamp.equals(other.timeStamp))
-            return false;
         return true;
     }
 
-    
 
 }

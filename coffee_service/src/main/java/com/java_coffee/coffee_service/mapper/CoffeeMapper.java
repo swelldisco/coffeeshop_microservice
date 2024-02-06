@@ -1,0 +1,73 @@
+package com.java_coffee.coffee_service.mapper;
+
+import com.java_coffee.coffee_service.cart.Cart;
+import com.java_coffee.coffee_service.cart.CartDto;
+import com.java_coffee.coffee_service.coffee.Coffee;
+import com.java_coffee.coffee_service.coffee.CoffeeDto;
+import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
+import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderDto;
+
+public class CoffeeMapper {
+
+    public Coffee mapToCoffee(CoffeeDto source) {
+        return new Coffee(
+            source.coffeeId(),
+            source.size(),
+            source.drinkName(),
+            source.basePrice(),
+            source.ingredientList()
+        );
+    }
+
+    public CoffeeDto mapToCoffeeDto(Coffee source) {
+        return new CoffeeDto(source.getCoffeeId(), 
+            source.getSize(),  
+            source.getDrinkName(), 
+            source.getBasePrice(), 
+            source.getPrice(),
+            source.getIngredientList()
+        );
+    }
+
+    public CoffeeOrder mapToCoffeeOrder(CoffeeOrderDto source) {
+        return new CoffeeOrder(
+            source.orderId(),
+            mapToCoffee(source.coffeeDto()),
+            source.cartId(),
+            source.userId(),
+            source.quantity(),
+            source.timeStamp()
+        );
+    }
+
+    public CoffeeOrderDto mapToCoffeeOrderDto(CoffeeOrder source) {
+        return new CoffeeOrderDto(source.getOrderId(), 
+            mapToCoffeeDto(source.getCoffee()),
+            source.getCartId(), 
+            source.getUserId(), 
+            source.getQuantity(), 
+            source.getTimeStamp()
+        );
+    }
+
+    public Cart mapToCart(CartDto source){
+        return new Cart(
+            source.cartId(),
+            source.userId(),
+            source.orders().stream()
+                .map(o -> mapToCoffeeOrder(o))
+                .toList()
+        );
+    }
+
+    public CartDto mapToCartDto(Cart source) {
+        return new CartDto(
+            source.getCartId(), 
+            source.getuserId(), 
+            source.getOrders().stream()
+                .map(o -> mapToCoffeeOrderDto(o))
+                .toList()
+        );
+    }
+    
+}

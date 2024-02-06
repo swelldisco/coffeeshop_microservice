@@ -1,6 +1,10 @@
 package com.java_coffee.coffee_service.coffeeOrder;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.java_coffee.coffee_service.cart.Cart;
 import com.java_coffee.coffee_service.coffee.Coffee;
 
@@ -13,6 +17,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -28,32 +36,57 @@ public class CoffeeOrder {
     private long orderId;
 
     @ManyToOne()
-    @JoinColumn(name = "coffee_id", nullable = false, foreignKey = @ForeignKey(name = "order_coffee_fk"))
+    @JoinColumn(name = "coffee_id", nullable = false, foreignKey = @ForeignKey(name = "coffee_id_FK"))
+    @NotNull(message = "All orders must contain an item")
+    @NotEmpty(message = "All orders must contain an item")
+    @NotNull(message = "All orders must contain an item")
     private Coffee coffee;
 
-    @ManyToOne()
-    @JoinColumn(name =  "cart_id", nullable = false, foreignKey = @ForeignKey(name = "order_cart_fk"))
-    @JsonBackReference
-    private Cart cart;
+
+    @Column(name = "cart_id")
+    private long cartId;
+
+    @Column(name = "user_id")
+    private long userId;
 
     @Column(name = "quantity", nullable = false)
+    @NotBlank(message = "All oders must have a quantity of at least one.")
+    @NotEmpty(message = "All oders must have a quantity of at least one.")
+    @Size(min = 1, max = 5, message = "You must have a minumum of 1 coffee in your order, and no more than 5.")
     private int quantity;
+
+    @Column(name = "timestamp")
+    @CreationTimestamp
+    @JsonFormat(pattern="MM-dd-yyyy HH:mm:ss")
+    private LocalDateTime timeStamp;
 
     public CoffeeOrder(Coffee coffee, Cart cart, int quantity) {
         this.coffee = coffee;
-        this.cart = cart;
+        this.cartId = cart.getCartId();
+        this.userId = cart.getuserId();
         this.quantity = quantity;
+        this.timeStamp = LocalDateTime.now();
     }
 
     public CoffeeOrder(CoffeeOrder source) {
         this.orderId = source.orderId;
         this.coffee = source.coffee;
-        this.cart = source.cart;
+        this.cartId = source.cartId;
+        this.userId = source.userId;
         this.quantity = source.quantity;
+        this.timeStamp = source.timeStamp;
     }
 
     public long getOrderId() {
         return orderId;
+    }
+
+    public long getCartId() {
+        return cartId;
+    }
+
+    public long getUserId() {
+        return userId;
     }
 
     public Coffee getCoffee() {
@@ -64,14 +97,6 @@ public class CoffeeOrder {
         this.coffee = coffee;
     }
 
-    public Cart getCart() {
-        return cart;
-    }
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
-    }
-
     public int getQuantity() {
         return quantity;
     }
@@ -80,14 +105,24 @@ public class CoffeeOrder {
         this.quantity = quantity;
     }
 
+    public LocalDateTime getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp() {
+        this.timeStamp = LocalDateTime.now();
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + (int) (orderId ^ (orderId >>> 32));
         result = prime * result + ((coffee == null) ? 0 : coffee.hashCode());
-        result = prime * result + ((cart == null) ? 0 : cart.hashCode());
+        result = prime * result + (int) (cartId ^ (cartId >>> 32));
+        result = prime * result + (int) (userId ^ (userId >>> 32));
         result = prime * result + quantity;
+        result = prime * result + ((timeStamp == null) ? 0 : timeStamp.hashCode());
         return result;
     }
 
@@ -107,16 +142,22 @@ public class CoffeeOrder {
                 return false;
         } else if (!coffee.equals(other.coffee))
             return false;
-        if (cart == null) {
-            if (other.cart != null)
-                return false;
-        } else if (!cart.equals(other.cart))
+        if (cartId != other.cartId)
+            return false;
+        if (userId != other.userId)
             return false;
         if (quantity != other.quantity)
+            return false;
+        if (timeStamp == null) {
+            if (other.timeStamp != null)
+                return false;
+        } else if (!timeStamp.equals(other.timeStamp))
             return false;
         return true;
     }
 
-   
+    
+
+    
     
 }

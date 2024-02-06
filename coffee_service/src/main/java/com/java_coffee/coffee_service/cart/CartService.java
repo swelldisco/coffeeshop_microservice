@@ -2,18 +2,18 @@ package com.java_coffee.coffee_service.cart;
 
 import java.util.List;
 
-import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
+import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderDto;
 import com.java_coffee.coffee_service.userStub.UserStub;
 
 public interface CartService {
     
-    Cart createCart(UserStub userStub);
-    Cart getCartById(long cartId);
-    Cart getCartByUserId(long userId);
-    List<Cart> getAllCarts();
-    Cart addItemToCart(Cart cart, CoffeeOrder coffeeOrder);
-    Cart removeItemFromCart(Cart cart, CoffeeOrder coffeeOrder);
-    Cart clearCart(Cart cart);
+    CartDto createCart(UserStub userStub);
+    CartDto getCartById(long cartId);
+    CartDto getCartByUserId(long userId);
+    List<CartDto> getAllCarts();
+    CartDto addItemToCart(long cartId, CoffeeOrderDto coffeeOrderDto);
+    CartDto removeItemFromCart(long cartId, CoffeeOrderDto coffeeOrderDto);
+    CartDto clearCart(long cartId);
     void deleteCartById(long cartId);
 
 }
