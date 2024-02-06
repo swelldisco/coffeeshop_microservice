@@ -14,7 +14,7 @@
 	<description>coffee microservice</description>
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2023.0.0</spring-cloud.version>
+		<!-- <spring-cloud.version>2023.0.0</spring-cloud.version> -->
 	</properties>
 	<dependencies>
 		<!-- coffee service dependencies here -->
@@ -29,14 +29,14 @@
 			<optional>true</optional>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-		</dependency>
+		</dependency> -->
 		
 	</dependencies>
 
-	<dependencyManagement>
+	<!-- <dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -46,7 +46,7 @@
 				<scope>import</scope>
 			</dependency>
 		</dependencies>
-  	</dependencyManagement>
+  	</dependencyManagement> -->
 
 	<build>
 		<plugins>

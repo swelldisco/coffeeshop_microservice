@@ -59,7 +59,7 @@ public class CoffeeServiceImpl implements CoffeeService {
     public CoffeeDto updateCoffee(long coffeeId, CoffeeDto coffeeDto) {
         if (repo.existsByCoffeeId(coffeeId)) {
             Coffee updatedCoffee = vibrateOptionalCoffee(coffeeId);
-            updatedCoffee.setSize(coffeeDto.size());
+            updatedCoffee.setSize(coffeeDto.coffeeSize());
             updatedCoffee.setBasePrice(coffeeDto.basePrice());
             updatedCoffee.setPrice();
             updatedCoffee.setDrinkName(coffeeDto.drinkName());

@@ -17,9 +17,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-// @Table(name = "coffee")
-// @SecondaryTable(name = "menu")
-@Table(name = "menu")
+@Table(name = "coffee")
 public class Coffee{
 
     @Id
@@ -27,21 +25,18 @@ public class Coffee{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long coffeeId;
 
-    @Column(name = "size")
-    @NotBlank(message = "All coffee must have a size.")
-    @NotEmpty(message = "All coffee must have a size.")
+    @Column(name = "coffee_size")
     @NotNull(message = "All coffee must have a size.")
-    private CoffeeSize size;
+    private CoffeeSize coffeeSize;
 
-    @Column(name = "drink_name", nullable = false, length = 50, unique = true)
+    @Column(name = "drink_name", nullable = false, length = 50)
     @NotBlank(message = "Drink name cannot be left blank.")
     @NotEmpty(message = "Drink name cannot be left empty.")
     @NotNull(message = "Drink name cannot be left null.")
     private String drinkName;
 
     @Column(name = "base_price", nullable = false, length = 7)
-    @NotBlank(message = "All drinks must have a base price.")
-    @NotEmpty(message = "All drinks must have a base price.")
+    @NotNull(message = "All drinks must have a base price.")
     private double basePrice;
 
     @Column(name = "price")
@@ -54,33 +49,33 @@ public class Coffee{
     protected Coffee() {}
 
     public Coffee(String drinkName, double basePrice, List<String> ingredientList) {
-        this.size = CoffeeSize.SHORT;
+        this.coffeeSize = CoffeeSize.SHORT;
         this.drinkName = drinkName;
         this.basePrice = basePrice;
-        this.price = calculateUpcharge(basePrice, size);
+        this.price = calculateUpcharge(basePrice, coffeeSize);
         this.ingredientList = ingredientList;
     }
 
     public Coffee(Coffee source) {
         this.coffeeId = source.coffeeId;
-        this.size = source.size;
+        this.coffeeSize = source.coffeeSize;
         this.drinkName = source.drinkName;
         this.basePrice = source.basePrice;
-        this.price = calculateUpcharge(basePrice, size);
+        this.price = calculateUpcharge(basePrice, coffeeSize);
         this.ingredientList = source.ingredientList;
     }
 
-    public Coffee(long coffeeId, CoffeeSize size, String drinkName, double basePrice, List<String> ingredientList) {
+    public Coffee(long coffeeId, CoffeeSize coffeeSize, String drinkName, double basePrice, List<String> ingredientList) {
         this.coffeeId = coffeeId;
-        this.size = size;
+        this.coffeeSize = coffeeSize;
         this.drinkName = drinkName;
         this.basePrice = basePrice;
-        this.price = calculateUpcharge(basePrice, size);
+        this.price = calculateUpcharge(basePrice, coffeeSize);
         this.ingredientList= ingredientList;
     }
 
-    public double calculateUpcharge(double basePrice, CoffeeSize size) {
-        switch (size) {
+    public double calculateUpcharge(double basePrice, CoffeeSize coffeeSize) {
+        switch (coffeeSize) {
             case SHORT: return basePrice;
             case TALL: return basePrice += 0.30;
             case GRANDE: return basePrice += 0.65;
@@ -98,11 +93,11 @@ public class Coffee{
     }
 
     public CoffeeSize getSize() {
-        return size;
+        return coffeeSize;
     }
 
-    public void setSize(CoffeeSize size) {
-        this.size = size;
+    public void setSize(CoffeeSize coffeeSize) {
+        this.coffeeSize = coffeeSize;
     }
 
     public String getDrinkName() {
@@ -118,7 +113,7 @@ public class Coffee{
     }
 
     public void setPrice() {
-        this.price = calculateUpcharge(basePrice, size);
+        this.price = calculateUpcharge(basePrice, coffeeSize);
     }
 
     public double getBasePrice() {
@@ -155,7 +150,7 @@ public class Coffee{
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((size == null) ? 0 : size.hashCode());
+        result = prime * result + ((coffeeSize == null) ? 0 : coffeeSize.hashCode());
         result = prime * result + ((drinkName == null) ? 0 : drinkName.hashCode());
         long temp;
         temp = Double.doubleToLongBits(basePrice);
@@ -175,7 +170,7 @@ public class Coffee{
         if (getClass() != obj.getClass())
             return false;
         Coffee other = (Coffee) obj;
-        if (size != other.size)
+        if (coffeeSize != other.coffeeSize)
             return false;
         if (drinkName == null) {
             if (other.drinkName != null)

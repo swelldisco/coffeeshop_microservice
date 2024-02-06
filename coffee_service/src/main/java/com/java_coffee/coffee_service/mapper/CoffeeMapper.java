@@ -1,5 +1,7 @@
 package com.java_coffee.coffee_service.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.java_coffee.coffee_service.cart.Cart;
 import com.java_coffee.coffee_service.cart.CartDto;
 import com.java_coffee.coffee_service.coffee.Coffee;
@@ -7,12 +9,13 @@ import com.java_coffee.coffee_service.coffee.CoffeeDto;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderDto;
 
+@Component
 public class CoffeeMapper {
 
     public Coffee mapToCoffee(CoffeeDto source) {
         return new Coffee(
             source.coffeeId(),
-            source.size(),
+            source.coffeeSize(),
             source.drinkName(),
             source.basePrice(),
             source.ingredientList()
