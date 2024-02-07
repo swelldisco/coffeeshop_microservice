@@ -3,6 +3,7 @@ package com.java_coffee.coffee_service.coffee;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
@@ -10,6 +11,7 @@ import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 @Component
 public class MenuItems {
 
+    @Autowired
     private CoffeeRepository repo;
 
     protected void loadMenuItems() {

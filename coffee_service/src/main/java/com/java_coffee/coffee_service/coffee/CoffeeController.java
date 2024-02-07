@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("/api_vi/coffee")
+@RequestMapping(value = "/api_v1/coffee")
 @AllArgsConstructor
 public class CoffeeController {
     

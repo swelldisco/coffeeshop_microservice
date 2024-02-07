@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("/api_v1/order")
+@RequestMapping(value = "/api_v1/order")
 @AllArgsConstructor
 public class CoffeeOrderController {
 
