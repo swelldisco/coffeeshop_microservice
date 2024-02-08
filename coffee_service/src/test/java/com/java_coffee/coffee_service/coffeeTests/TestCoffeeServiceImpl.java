@@ -178,6 +178,7 @@ public class TestCoffeeServiceImpl {
         // then
         Assertions.assertThrowsExactly(CoffeeNotFoundException.class, () -> service.findAllByName(testCoffeeName2));
         Assertions.assertNotNull(mochaList);
+        Assertions.assertEquals(mochaList.size(), 2);
     }
 
     @Test

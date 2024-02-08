@@ -25,7 +25,9 @@ public class CoffeeServiceImpl implements CoffeeService {
 
     @Override
     public CoffeeDto createCoffee(CoffeeDto coffeeDto) {
-        return mapper.mapToCoffeeDto(repo.save(mapper.mapToCoffee(coffeeDto)));
+        Coffee coffee = mapper.mapToCoffee(coffeeDto);
+        coffee.setPrice();
+        return mapper.mapToCoffeeDto(repo.save(coffee));
     }
 
     @Override
@@ -59,10 +61,10 @@ public class CoffeeServiceImpl implements CoffeeService {
     public CoffeeDto updateCoffee(long coffeeId, CoffeeDto coffeeDto) {
         if (repo.existsByCoffeeId(coffeeId)) {
             Coffee updatedCoffee = vibrateOptionalCoffee(coffeeId);
+            updatedCoffee.setDrinkName(coffeeDto.drinkName());
             updatedCoffee.setSize(coffeeDto.coffeeSize());
             updatedCoffee.setBasePrice(coffeeDto.basePrice());
             updatedCoffee.setPrice();
-            updatedCoffee.setDrinkName(coffeeDto.drinkName());
             updatedCoffee.setIngredientsList(coffeeDto.ingredientList());
             return mapper.mapToCoffeeDto(repo.save(updatedCoffee));
         } else {

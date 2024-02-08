@@ -34,15 +34,15 @@ public class CartController {
         return new ResponseEntity<CartDto>(service.createCart(userstub), HttpStatus.CREATED);
     }
 
-    // http://127.0.0.1:8082/api_v1/cart/cartId?=1
-    @GetMapping("/cartId")
-    public ResponseEntity<CartDto> getCartById(@RequestParam long cartId){
+    // http://127.0.0.1:8082/api_v1/cart/cartId?id=1
+    @GetMapping("/id")
+    public ResponseEntity<CartDto> getCartById(@RequestParam(value = "id") long cartId){
         return new ResponseEntity<CartDto>(service.getCartById(cartId), HttpStatus.OK);
     }
 
-    // http://127.0.0.1:8082/api_v1/cart/userId?=1
+    // http://127.0.0.1:8082/api_v1/cart/userId?id=1
     @GetMapping("/userId")
-    public ResponseEntity<CartDto> getCartByUserId(@RequestParam long userId){
+    public ResponseEntity<CartDto> getCartByUserId(@RequestParam(value = "id") long userId){
         return new ResponseEntity<CartDto>(service.getCartByUserId(userId), HttpStatus.OK);
     }
 
@@ -72,7 +72,7 @@ public class CartController {
     }
 
     // http://127.0.0.1:8082/api_v1/cart/1
-    @DeleteMapping()
+    @DeleteMapping("")
     // only for admins users
     public ResponseEntity<HttpStatus> deleteCartById(@PathVariable long cartId) {
         service.deleteCartById(cartId);

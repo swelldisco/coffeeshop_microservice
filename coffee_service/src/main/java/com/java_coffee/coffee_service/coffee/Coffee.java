@@ -25,8 +25,8 @@ public class Coffee{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long coffeeId;
 
+    // somehow this enum is causing a null pointer exception in postman
     @Column(name = "coffee_size")
-    @NotNull(message = "All coffee must have a size.")
     private CoffeeSize coffeeSize;
 
     @Column(name = "drink_name", nullable = false, length = 50)
@@ -35,7 +35,7 @@ public class Coffee{
     @NotNull(message = "Drink name cannot be left null.")
     private String drinkName;
 
-    @Column(name = "base_price", nullable = false, length = 7)
+    @Column(name = "base_price")
     @NotNull(message = "All drinks must have a base price.")
     private double basePrice;
 
@@ -48,11 +48,11 @@ public class Coffee{
 
     protected Coffee() {}
 
-    public Coffee(String drinkName, double basePrice, List<String> ingredientList) {
-        this.coffeeSize = CoffeeSize.SHORT;
+    public Coffee(CoffeeSize coffeeSize, String drinkName, double basePrice, List<String> ingredientList) {
+        this.coffeeSize = coffeeSize;
         this.drinkName = drinkName;
         this.basePrice = basePrice;
-        this.price = calculateUpcharge(basePrice, coffeeSize);
+        this.price = 0.00;
         this.ingredientList = ingredientList;
     }
 
@@ -61,7 +61,7 @@ public class Coffee{
         this.coffeeSize = source.coffeeSize;
         this.drinkName = source.drinkName;
         this.basePrice = source.basePrice;
-        this.price = calculateUpcharge(basePrice, coffeeSize);
+        this.price = source.basePrice;
         this.ingredientList = source.ingredientList;
     }
 

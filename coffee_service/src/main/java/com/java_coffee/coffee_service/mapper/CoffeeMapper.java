@@ -23,7 +23,8 @@ public class CoffeeMapper {
     }
 
     public CoffeeDto mapToCoffeeDto(Coffee source) {
-        return new CoffeeDto(source.getCoffeeId(), 
+        return new CoffeeDto(
+            source.getCoffeeId(), 
             source.getSize(),  
             source.getDrinkName(), 
             source.getBasePrice(), 
