@@ -27,7 +27,7 @@ public class CoffeeOrderController {
     @Autowired
     private CoffeeOrderService service;
 
-    // http://127.0.0.1:8082/api_v1/order/
+    // http://127.0.0.1:8082/api_v1/order
     @PostMapping()
     public ResponseEntity<CoffeeOrderDto> createCoffeeOrder(@RequestBody @Valid CoffeeOrderDto coffeeOrderDto) {
         return new ResponseEntity<>(service.createOrder(coffeeOrderDto), HttpStatus.CREATED);
@@ -40,6 +40,7 @@ public class CoffeeOrderController {
         return new ResponseEntity<>(service.getAllOrders(), HttpStatus.OK);
     }
 
+    // should only be used by cart owner, admin and baristas
     // http://127.0.0.1:8082/api_v1/order/order?orderId=1
     @GetMapping("/order")
     public ResponseEntity<CoffeeOrderDto> getOrderById(@RequestParam long orderId) {

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderDto;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderService;
 import com.java_coffee.coffee_service.exceptions.CartMismatchException;
@@ -71,8 +72,9 @@ public class CartServiceImpl implements CartService{
     public CartDto removeItemFromCart(long cartId, CoffeeOrderDto coffeeOrderDto) {
         if (repo.existsByCartId(cartId)) {
             Cart cart = digThroughOptionalCart(cartId);
-            if (cart.getOrders().contains(mapper.mapToCoffeeOrder(coffeeOrderDto))) {
-                cart.removeOrderFromCart(mapper.mapToCoffeeOrder(coffeeOrderDto));
+            CoffeeOrder order = new CoffeeOrder(mapper.mapToCoffeeOrder(orderService.getOrderByOrderId(coffeeOrderDto.orderId())));
+            if (cart.getOrders().contains(order)) {
+                cart.removeOrderFromCart(order);
                 orderService.deleteOrderById(coffeeOrderDto.orderId());
                 return mapper.mapToCartDto(repo.save(cart));
             } else {

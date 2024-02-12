@@ -17,10 +17,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -38,10 +36,7 @@ public class CoffeeOrder {
     @ManyToOne()
     @JoinColumn(name = "coffee_id", nullable = false, foreignKey = @ForeignKey(name = "coffee_id_FK"))
     @NotNull(message = "All orders must contain an item")
-    @NotEmpty(message = "All orders must contain an item")
-    @NotNull(message = "All orders must contain an item")
     private Coffee coffee;
-
 
     @Column(name = "cart_id")
     private long cartId;
@@ -50,9 +45,7 @@ public class CoffeeOrder {
     private long userId;
 
     @Column(name = "quantity", nullable = false)
-    @NotBlank(message = "All oders must have a quantity of at least one.")
-    @NotEmpty(message = "All oders must have a quantity of at least one.")
-    @Size(min = 1, max = 5, message = "You must have a minumum of 1 coffee in your order, and no more than 5.")
+    @Positive
     private int quantity;
 
     @Column(name = "timestamp")

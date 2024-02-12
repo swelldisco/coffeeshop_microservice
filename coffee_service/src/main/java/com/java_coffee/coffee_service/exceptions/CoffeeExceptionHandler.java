@@ -50,6 +50,16 @@ public class CoffeeExceptionHandler extends ResponseEntityExceptionHandler{
         return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.NOT_FOUND); 
     }
 
+    @ExceptionHandler(NoSuchSizeException.class)
+    public ResponseEntity<ErrorDetails> handleNoSuchSizeException(NoSuchSizeException ex, WebRequest webRequest){
+        ErrorDetails errorDetails = new ErrorDetails(
+            LocalDateTime.now(),
+            ex.getMessage(),
+            webRequest.getDescription(false),
+            "NO_SUCH_SIZE");
+        return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.NOT_FOUND); 
+    }
+
     @ExceptionHandler(CartMismatchException.class)
     public ResponseEntity<ErrorDetails> handleCartMismatchException(CartMismatchException ex, WebRequest webRequest){
         ErrorDetails errorDetails = new ErrorDetails(

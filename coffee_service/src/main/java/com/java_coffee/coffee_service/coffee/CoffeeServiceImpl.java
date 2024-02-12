@@ -1,11 +1,16 @@
 package com.java_coffee.coffee_service.coffee;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.exceptions.CoffeeNotFoundException;
+import com.java_coffee.coffee_service.exceptions.NoSuchSizeException;
 import com.java_coffee.coffee_service.mapper.CoffeeMapper;
 
 import lombok.AllArgsConstructor;
@@ -23,6 +28,7 @@ public class CoffeeServiceImpl implements CoffeeService {
     @Autowired
     private MenuItems menuItems;
 
+    // barista and admin only
     @Override
     public CoffeeDto createCoffee(CoffeeDto coffeeDto) {
         Coffee coffee = mapper.mapToCoffee(coffeeDto);
@@ -30,11 +36,19 @@ public class CoffeeServiceImpl implements CoffeeService {
         return mapper.mapToCoffeeDto(repo.save(coffee));
     }
 
+    // everyone
     @Override
     public CoffeeDto findCoffeeById(long coffeeId) {
         return mapper.mapToCoffeeDto(vibrateOptionalCoffee(coffeeId));
     }
 
+    // to get a specific coffee out of the database to add to the user's order
+    @Override
+    public CoffeeDto findCoffeeByNameAndSize(String drinkName, String size) {
+        return mapper.mapToCoffeeDto(vibrateOptionalCoffeeByNameAndSize(drinkName, parseStringToSize(size)));
+    }
+
+    // everyone
     @Override
     public List<CoffeeDto> findAllCoffees() {
         if (repo.findAll() != null && !repo.findAll().isEmpty()) {
@@ -46,6 +60,7 @@ public class CoffeeServiceImpl implements CoffeeService {
         }
     }
 
+    // everyone
     @Override
     public List<CoffeeDto> findAllByName(String name) {
         if (repo.findAllByDrinkNameIgnoringCase(name) != null && !repo.findAllByDrinkNameIgnoringCase(name).isEmpty()) {
@@ -57,6 +72,7 @@ public class CoffeeServiceImpl implements CoffeeService {
         }
     }
 
+    // admin and barista only
     @Override
     public CoffeeDto updateCoffee(long coffeeId, CoffeeDto coffeeDto) {
         if (repo.existsByCoffeeId(coffeeId)) {
@@ -72,6 +88,7 @@ public class CoffeeServiceImpl implements CoffeeService {
         }
     }
 
+    // admin and maybe barista only
     @Override
     public void deleteCoffeeById(long coffeeId) {
         if (repo.existsByCoffeeId(coffeeId)) {
@@ -81,14 +98,58 @@ public class CoffeeServiceImpl implements CoffeeService {
         }
     }
 
+    // to dump the menu into the coffee table of the database since we don't allow users to 'create' coffees, only order them
+    // admin and barista only
     @Override
     public void initializeMenu() {
         menuItems.loadMenuItems();
     }
 
+    // to present the menu in a sane manner as the user would expect in a proper coffee shop since it looks like React won't allow me to do this from an unfiltered list in the front end.
+    // this is ugly, but hibernate does not seem to support common table expressions
+    @Override
+    public List<MenuItemDto> getMenu() {
+        List<Coffee> tempList = repo.findAll();
+        if (tempList != null && !tempList.isEmpty()) {
+            Set<String> tempSet = new HashSet<>();
+            List<MenuItemDto> menu = new ArrayList<>();
+            for (Coffee coffee : tempList) {
+                if (tempSet.add(coffee.getDrinkName())) {
+                    menu.add(new MenuItemDto(
+                        coffee.getCoffeeId(),
+                        coffee.getDrinkName(), 
+                        String.format("%.2f", coffee.getBasePrice()), 
+                        String.format("%.2f", coffee.calculateUpcharge(coffee.getBasePrice(), 
+                        CoffeeSize.TALL)), 
+                        String.format("%.2f", coffee.calculateUpcharge(coffee.getBasePrice(), 
+                        CoffeeSize.GRANDE)), 
+                        String.format("%.2f", coffee.calculateUpcharge(coffee.getBasePrice(), CoffeeSize.VENTI))));
+                }
+            }
+            return menu;
+        } else {
+            throw new CoffeeNotFoundException();
+        }
+    }
+
     private Coffee vibrateOptionalCoffee(long coffeeId) {
         return repo.findById(coffeeId)
             .orElseThrow(() -> new CoffeeNotFoundException());
+    }
+
+    private Coffee vibrateOptionalCoffeeByNameAndSize(String coffeeName, CoffeeSize coffeeSize) {
+        return repo.findCoffeeByDrinkNameAndSize(coffeeName, coffeeSize)
+            .orElseThrow(() -> new CoffeeNotFoundException());
+    }
+
+    private CoffeeSize parseStringToSize(String size) {
+        switch (size.toLowerCase()) {
+            case "short": return CoffeeSize.SHORT;
+            case "tall": return CoffeeSize.TALL;
+            case "grande": return CoffeeSize.GRANDE;
+            case "venti": return CoffeeSize.VENTI;
+            default: throw new NoSuchSizeException();
+        }
     }
     
 }

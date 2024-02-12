@@ -26,6 +26,7 @@ import com.java_coffee.coffee_service.coffee.Coffee;
 import com.java_coffee.coffee_service.coffee.CoffeeDto;
 import com.java_coffee.coffee_service.coffee.CoffeeRepository;
 import com.java_coffee.coffee_service.coffee.CoffeeServiceImpl;
+import com.java_coffee.coffee_service.coffee.MenuItemDto;
 import com.java_coffee.coffee_service.coffee.MenuItems;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.exceptions.CoffeeNotFoundException;
@@ -36,11 +37,12 @@ import com.java_coffee.coffee_service.mapper.CoffeeMapper;
 public class TestCoffeeServiceImpl {
     
     private CoffeeMapper mapper = new CoffeeMapper();
-
-    private MenuItems menuItems = new MenuItems();
     
     @Mock(name = "database")
     private CoffeeRepository repo;
+
+    @InjectMocks
+    private MenuItems menuItems = new MenuItems();
 
     @InjectMocks
     private CoffeeServiceImpl service = new CoffeeServiceImpl(mapper, repo, menuItems);
@@ -231,7 +233,88 @@ public class TestCoffeeServiceImpl {
     @Test
     public void testInitializeMenu() {
         // given
-        // yeah, I know I need to test this, but I cannot brain
+        final List<String> ing1 = Arrays.asList("Espresso", "Skim Milk");
+        final List<String> ing2 = Arrays.asList("Espresso", "Whole Milk", "Chocolate Syrup");
+        final List<String> ing3 = Arrays.asList("Espresso", "2% Milk");
+        final List<String> ing4 = Arrays.asList("Espresso", "Filtered Water");
+        final List<String> ing5 = Arrays.asList("Espresso");
+        final List<Coffee> tempMenu1 = Arrays.asList(
+            new Coffee(0L, CoffeeSize.SHORT,"Mocha", 3.29, ing2),
+            new Coffee(0L, CoffeeSize.TALL,"Mocha", 3.29, ing2),
+            new Coffee(0L, CoffeeSize.GRANDE,"Mocha", 3.29, ing2),
+            new Coffee(0L, CoffeeSize.VENTI,"Mocha", 3.29, ing2),
+
+            new Coffee(0L, CoffeeSize.SHORT, "Skim Latte", 3.25, ing1),
+            new Coffee(0L, CoffeeSize.TALL, "Skim Latte", 3.25, ing1),
+            new Coffee(0L, CoffeeSize.GRANDE, "Skim Latte", 3.25, ing1),
+            new Coffee(0L, CoffeeSize.VENTI, "Skim Latte", 3.25, ing1),
+
+            new Coffee(0L, CoffeeSize.SHORT, "Latte", 3.25, ing3),
+            new Coffee(0L, CoffeeSize.TALL, "Latte", 3.25, ing3),
+            new Coffee(0L, CoffeeSize.GRANDE, "Latte", 3.25, ing3),
+            new Coffee(0L, CoffeeSize.VENTI, "Latte", 3.25, ing3),
+
+            new Coffee(0L, CoffeeSize.SHORT, "Macchiato", 3.95, ing4),
+            new Coffee(0L, CoffeeSize.TALL, "Macchiato", 3.95, ing4),
+            new Coffee(0L, CoffeeSize.GRANDE, "Macchiato", 3.95, ing4),
+            new Coffee(0L, CoffeeSize.VENTI, "Macchiato", 3.95, ing4),
+
+            new Coffee(0L, CoffeeSize.SHORT, "Cappuccino", 3.00, ing4),
+            new Coffee(0L, CoffeeSize.TALL, "Cappuccino", 3.00, ing4),
+            new Coffee(0L, CoffeeSize.GRANDE, "Cappuccino", 3.00, ing4),
+            new Coffee(0L, CoffeeSize.VENTI, "Cappuccino", 3.00, ing4),
+
+            new Coffee(0L, CoffeeSize.SHORT, "Americano", 2.50, ing5),
+            new Coffee(0L, CoffeeSize.TALL, "Americano", 2.50, ing5),
+            new Coffee(0L, CoffeeSize.GRANDE, "Americano", 2.50, ing5),
+            new Coffee(0L, CoffeeSize.VENTI, "Americano", 2.50, ing5),
+
+            new Coffee(0L, CoffeeSize.SHORT, "Flat White", 2.95, ing3),
+            new Coffee(0L, CoffeeSize.TALL, "Flat White", 2.95, ing3),
+            new Coffee(0L, CoffeeSize.GRANDE, "Flat White", 2.95, ing3),
+            new Coffee(0L, CoffeeSize.VENTI, "Flat White", 2.95, ing3),
+
+            new Coffee(0L, CoffeeSize.SHORT, "Red Eye", 4.50, ing5),
+            new Coffee(0L, CoffeeSize.TALL, "Red Eye", 4.50, ing5),
+            new Coffee(0L, CoffeeSize.GRANDE, "Red Eye", 4.50, ing5),
+            new Coffee(0L, CoffeeSize.VENTI, "Red Eye", 4.50, ing5),
+
+            new Coffee(0L, CoffeeSize.SHORT, "Espresso", 2.00, ing5),
+            new Coffee(0L, CoffeeSize.TALL, "Espresso", 2.00, ing5),
+            new Coffee(0L, CoffeeSize.GRANDE, "Espresso", 2.00, ing5),
+            new Coffee(0L, CoffeeSize.VENTI, "Espresso", 2.00, ing5)
+        );
+        Assertions.assertNotNull(tempMenu1);
+        Coffee tempCoffee = new Coffee(0L, CoffeeSize.SHORT, "temp coffee", 1.99, null);
+        
+        // when
+        when(repo.save(any(Coffee.class))).thenReturn(tempCoffee);
+        service.initializeMenu();
+
+        //
+        verify(repo, times(tempMenu1.size())).save(any(Coffee.class));
+    }
+
+    @Test 
+    public void getMenu() {
+        // given
+        Assertions.assertNotNull(testCoffeeList);
+        Assertions.assertEquals(testCoffeeList.stream().filter(c -> c.getDrinkName() == "Latte").count(), 2);
+        Assertions.assertEquals(testCoffeeList.stream().filter(c -> c.getDrinkName() == "Red Eye").count(), 2);
+        int length = testCoffeeList.size();
+        Assertions.assertEquals(length, testCoffeeList.size());
+        Assertions.assertTrue(length%2 == 0);
+
+        // when
+        when(repo.findAll()).thenReturn(testCoffeeList);
+        List<MenuItemDto> tempList = service.getMenu();
+
+        // then
+        Assertions.assertNotEquals(length, tempList.size());
+        Assertions.assertEquals(length/2, tempList.size());
+        Assertions.assertEquals(tempList.stream().filter(c -> c.drinkName() == "Latte").count(), 1);
+        Assertions.assertEquals(tempList.stream().filter(c -> c.drinkName() == "Red Eye").count(), 1);
+        
     }
 
 }

@@ -42,10 +42,22 @@ public class CoffeeController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // http://127.0.0.1:8082/api_v1/coffee/getMenu
+    @GetMapping("/getMenu")
+    public ResponseEntity<List<MenuItemDto>> getMenu() {
+        return new ResponseEntity<>(service.getMenu(), HttpStatus.OK);
+    }
+
     // http://127.0.0.1:8082/api_v1/coffee/id?coffeeId=1
     @GetMapping("/id")
     public ResponseEntity<CoffeeDto> getCoffeeById(@RequestParam long coffeeId) {
         return new ResponseEntity<>(service.findCoffeeById(coffeeId), HttpStatus.OK);
+    }
+
+    // http://127.0.0.1:8082/api_v1/coffee/coffee?name=latte&size=grande
+    @GetMapping("/coffee")
+    public ResponseEntity<CoffeeDto> getCoffeeByNameAndSize(@RequestParam(name = "name") String drinkName, @RequestParam String size) {
+        return new ResponseEntity<>(service.findCoffeeByNameAndSize(drinkName, size), HttpStatus.OK);
     }
 
     // http://127.0.0.1:8082/api_v1/coffee/all
@@ -54,7 +66,6 @@ public class CoffeeController {
         return new ResponseEntity<>(service.findAllCoffees(), HttpStatus.OK);
     }
 
-    // omg, this works as path variable, but not request param?
     // http://127.0.0.1:8082/api_v1/coffee/name?drinkName=latte
     @GetMapping("/name")
     public ResponseEntity<List<CoffeeDto>> getCoffeesByName(@RequestParam String drinkName) {
