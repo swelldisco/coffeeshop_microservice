@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.exceptions.CoffeeNotFoundException;
 import com.java_coffee.coffee_service.exceptions.NoSuchSizeException;
+import com.java_coffee.coffee_service.exceptions.RepositoryEmptyException;
 import com.java_coffee.coffee_service.mapper.CoffeeMapper;
 
 import lombok.AllArgsConstructor;
@@ -128,7 +129,7 @@ public class CoffeeServiceImpl implements CoffeeService {
             }
             return menu;
         } else {
-            throw new CoffeeNotFoundException();
+            throw new RepositoryEmptyException();
         }
     }
 
