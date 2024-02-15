@@ -3,7 +3,6 @@ package com.java_coffee.coffee_service.coffee;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
@@ -11,15 +10,13 @@ import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 @Component
 public class MenuItems {
 
-    @Autowired
-    private CoffeeRepository repo;
-
-    protected void loadMenuItems() {
+    protected List<Coffee> createLists() {
         final List<String> ing1 = Arrays.asList("Espresso", "Skim Milk");
         final List<String> ing2 = Arrays.asList("Espresso", "Whole Milk", "Chocolate Syrup");
         final List<String> ing3 = Arrays.asList("Espresso", "2% Milk");
         final List<String> ing4 = Arrays.asList("Espresso", "Filtered Water");
         final List<String> ing5 = Arrays.asList("Espresso");
+
         final List<Coffee> tempList = Arrays.asList(
             new Coffee(0L, CoffeeSize.SHORT,"Mocha", 3.29, ing2),
             new Coffee(0L, CoffeeSize.TALL,"Mocha", 3.29, ing2),
@@ -66,9 +63,7 @@ public class MenuItems {
             new Coffee(0L, CoffeeSize.GRANDE, "Espresso", 2.00, ing5),
             new Coffee(0L, CoffeeSize.VENTI, "Espresso", 2.00, ing5)
         );
-        
-        for (Coffee coffee : tempList) {
-            repo.save(coffee);
-        }
+        return tempList;
     }
+
 }

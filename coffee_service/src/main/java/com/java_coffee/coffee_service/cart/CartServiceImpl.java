@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderService;
 import com.java_coffee.coffee_service.exceptions.CartNotFoundException;
+import com.java_coffee.coffee_service.exceptions.RepositoryEmptyException;
 import com.java_coffee.coffee_service.mapper.CoffeeMapper;
 import com.java_coffee.coffee_service.pojo.UserStub;
 
@@ -22,10 +23,15 @@ public class CartServiceImpl implements CartService{
     @Autowired
     private CoffeeOrderService orderService;
 
+    // before creating a cart, check to make sure there isn't already one made.  Each user should only have one cart at any given time.
     @Override
     public CartDto createCart(UserStub userStub) {
-        Cart cart = new Cart(userStub);
-        return mapper.mapToCartDto(repo.save(cart));
+        if (!repo.existsByUserId(userStub.getUserId())) {
+            Cart cart = new Cart(userStub);
+            return mapper.mapToCartDto(repo.save(cart));
+        } else {
+            return mapper.mapToCartDto(rudelyInvestigateAUsersCart(userStub.getUserId()));
+        }
     }
 
     @Override
@@ -45,10 +51,11 @@ public class CartServiceImpl implements CartService{
                 .map(c -> mapper.mapToCartDto(c))
                 .toList();
         } else {
-            throw new CartNotFoundException();
+            throw new RepositoryEmptyException();
         }
     }
 
+    // delete all orders associated with the cart
     @Override
     public CartDto clearCart(long cartId) {
         if (repo.existsByCartId(cartId)) {
@@ -68,6 +75,7 @@ public class CartServiceImpl implements CartService{
         }
     }
 
+    // make sure the cart is empty before deleting
     @Override
     public void deleteCartById(long cartId) {
         if (repo.existsByCartId(cartId)) {
@@ -78,6 +86,7 @@ public class CartServiceImpl implements CartService{
         }
     }
 
+    // inspecting optionals
     private Cart digThroughOptionalCart(long cartId) {
         return repo.findById(cartId)
             .orElseThrow(() -> new CartNotFoundException());

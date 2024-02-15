@@ -39,6 +39,7 @@ public class SecurityConfiguration {
     //                 .requestMatchers(HttpMethod.GET, "api_v1/users/loadTestData").permitAll()
     //                 .anyRequest()
     //                 .authenticated())
+    //         
     //         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
     //         .exceptionHandling((ex) -> ex.authenticationEntryPoint(authEntrypoint))
     //         .build();
@@ -53,7 +54,10 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests((auth) -> auth.anyRequest().permitAll()).build();
+        return http
+            .csrf(c->c.disable())
+            .cors(c->c.disable())
+            .authorizeHttpRequests((auth) -> auth.anyRequest().permitAll()).build();
     }
 
     @Bean
@@ -61,7 +65,8 @@ public class SecurityConfiguration {
         return authConfig.getAuthenticationManager();
     }
 
-    @Bean public Argon2PasswordEncoder argon2PasswordEncoder() {
+    @Bean 
+    public Argon2PasswordEncoder argon2PasswordEncoder() {
         return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
 

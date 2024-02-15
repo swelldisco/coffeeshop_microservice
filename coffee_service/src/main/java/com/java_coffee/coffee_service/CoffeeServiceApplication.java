@@ -2,7 +2,6 @@ package com.java_coffee.coffee_service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

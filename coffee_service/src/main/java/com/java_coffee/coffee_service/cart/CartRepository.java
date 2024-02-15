@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 
 public interface CartRepository extends JpaRepository<Cart, Long>{
     boolean existsByCartId(long cartId);
+    boolean existsByUserId(long userId);
     Optional<Cart> findCartByUserId(long userId);
 
     @Transactional

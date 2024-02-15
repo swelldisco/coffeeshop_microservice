@@ -37,11 +37,15 @@ import com.jayway.jsonpath.JsonPath;
 
 import jakarta.servlet.ServletContext;
 
-@WebMvcTest
-@AutoConfigureMockMvc
+// sercurity breaks this
+// comment out the component annotation in AuthenticationFilter to get this working
+// ** ALSO COMMENT IT BACK IN AFTER, YO
+@WebMvcTest(UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
-    private UserMapper mapper;
+    
+    private UserMapper mapper = new UserMapper();
     @Autowired
     private MockMvc mockMvc;
     @Autowired

@@ -26,7 +26,6 @@ public class CoffeeServiceImpl implements CoffeeService {
     @Autowired
     private CoffeeRepository repo;
 
-    @Autowired
     private MenuItems menuItems;
 
     // barista and admin only
@@ -46,7 +45,7 @@ public class CoffeeServiceImpl implements CoffeeService {
     // to get a specific coffee out of the database to add to the user's order
     @Override
     public CoffeeDto findCoffeeByNameAndSize(String drinkName, String size) {
-        return mapper.mapToCoffeeDto(vibrateOptionalCoffeeByNameAndSize(drinkName, parseStringToSize(size)));
+        return mapper.mapToCoffeeDto(vibrateOptionalCoffee(drinkName, parseStringToSize(size)));
     }
 
     // everyone
@@ -100,14 +99,17 @@ public class CoffeeServiceImpl implements CoffeeService {
     }
 
     // to dump the menu into the coffee table of the database since we don't allow users to 'create' coffees, only order them
-    // admin and barista only
+    // admin and (maybe) barista only
     @Override
     public void initializeMenu() {
-        menuItems.loadMenuItems();
+        List<Coffee> menu = menuItems.createLists();
+        for (Coffee coffee : menu) {
+            repo.save(coffee);
+        }
     }
 
     // to present the menu in a sane manner as the user would expect in a proper coffee shop since it looks like React won't allow me to do this from an unfiltered list in the front end.
-    // this is ugly, but hibernate does not seem to support common table expressions
+    // this is ugly, and probably has a bad code smell.  I need a SQL wizard to help me figure out how to make Spring JPA do this query in the repository rather than filtering the coffee list here.
     @Override
     public List<MenuItemDto> getMenu() {
         List<Coffee> tempList = repo.findAll();
@@ -133,16 +135,18 @@ public class CoffeeServiceImpl implements CoffeeService {
         }
     }
 
+    // checking optionals
     private Coffee vibrateOptionalCoffee(long coffeeId) {
         return repo.findById(coffeeId)
             .orElseThrow(() -> new CoffeeNotFoundException());
     }
 
-    private Coffee vibrateOptionalCoffeeByNameAndSize(String coffeeName, CoffeeSize coffeeSize) {
+    private Coffee vibrateOptionalCoffee(String coffeeName, CoffeeSize coffeeSize) {
         return repo.findCoffeeByDrinkNameAndSize(coffeeName, coffeeSize)
             .orElseThrow(() -> new CoffeeNotFoundException());
     }
 
+    // to convert from string to CoffeeSize for flexibility
     private CoffeeSize parseStringToSize(String size) {
         switch (size.toLowerCase()) {
             case "short": return CoffeeSize.SHORT;

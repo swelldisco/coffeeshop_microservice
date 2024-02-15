@@ -73,21 +73,20 @@ public class UserServiceImpl implements UserService , UserDetailsService {
     // this also does not touch the password or salt
     @Override
     public UserDto updateUser(long userId, UserDto userDto) {
-        User user = mapper.mapToUser(userDto);
-        if (repo.existsByUserId(user.getUserId())) {
-            User updatedUser = new User(checkOptionalUserById(user.getUserId()));
-            if (!repo.existsByUserNameIgnoreCase(user.getUserName())) {
-                updatedUser.setUserName(user.getUserName());
+        if (repo.existsByUserId(userDto.userId()) && userId == userDto.userId()) {
+            User updatedUser = new User(checkOptionalUserById(userDto.userId()));
+            if (!repo.existsByUserNameIgnoreCase(userDto.userName())) {
+                updatedUser.setUserName(userDto.userName());
             }
-            if (!repo.existsByEmailAddressIgnoreCase(user.getEmailAddress())) {
-                updatedUser.setEmailAddress(user.getEmailAddress());
+            if (!repo.existsByEmailAddressIgnoreCase(userDto.emailAddress())) {
+                updatedUser.setEmailAddress(userDto.emailAddress());
             }
-            updatedUser.setFirstName(user.getFirstName());
-            updatedUser.setLastName(user.getLastName());
-            updatedUser.setRole(user.getRole());
-            updatedUser.setIsBanned(user.getIsBanned());
-            updatedUser.setIsSuspended(user.getIsSuspended());
-            updatedUser.setIsConfirmed(user.getIsConfirmed());
+            updatedUser.setFirstName(userDto.firstName());
+            updatedUser.setLastName(userDto.lastName());
+            updatedUser.setRole(userDto.role());
+            updatedUser.setIsBanned(userDto.isBanned());
+            updatedUser.setIsSuspended(userDto.isSuspended());
+            updatedUser.setIsConfirmed(userDto.isConfirmed());
             return mapper.mapToDto(repo.save(updatedUser));
         } else {
             throw new UserNotFoundException("User", "ID", String.valueOf(userId));

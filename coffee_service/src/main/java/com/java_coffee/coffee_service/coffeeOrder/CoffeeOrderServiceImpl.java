@@ -77,6 +77,7 @@ public class CoffeeOrderServiceImpl implements CoffeeOrderService {
             updatedOrder.setCoffee(mapper.mapToCoffee(coffeeOrderDto.coffeeDto()));
             updatedOrder.setQuantity(coffeeOrderDto.quantity());
             updatedOrder.setIsPaid(coffeeOrderDto.isPaid());
+            updatedOrder.setLineItemTotal();
             return mapper.mapToCoffeeOrderDto(repo.save(updatedOrder));
         } else {
             throw new OrderNotFoundException();
@@ -92,6 +93,7 @@ public class CoffeeOrderServiceImpl implements CoffeeOrderService {
         }
     }
 
+    // get the total cost
     @Override
     public double orderTotal(long cartId) {
         double total = 0.00;
@@ -104,6 +106,7 @@ public class CoffeeOrderServiceImpl implements CoffeeOrderService {
         return total;
     }
 
+    // a receipt that can be shown to the user and/or sent to the payment microservice
     @Override
     public OrderReceipt generateReceipt(UserStub userStub, long cartId) {
         if (confirmCartOwnership(userStub.getUserId(), cartId)) {
@@ -116,11 +119,13 @@ public class CoffeeOrderServiceImpl implements CoffeeOrderService {
         }
     }
 
+    // inspect optional
     private CoffeeOrder checkOrderByOrderId(long orderId) {
         return repo.findById(orderId)
             .orElseThrow(() -> new OrderNotFoundException());
     }
 
+    // just to make sure carts and users are matched up
     private boolean confirmCartOwnership(long userId, long cartId) {
         if (repo.findFirstByCartId(cartId).isPresent()) {
             if (repo.findFirstByCartId(cartId).get().getUserId() == userId) {
