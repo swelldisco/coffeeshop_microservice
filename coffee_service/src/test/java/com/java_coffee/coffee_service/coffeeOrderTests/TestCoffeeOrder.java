@@ -9,7 +9,7 @@ import com.java_coffee.coffee_service.cart.Cart;
 import com.java_coffee.coffee_service.coffee.Coffee;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
-import com.java_coffee.coffee_service.userStub.UserStub;
+import com.java_coffee.coffee_service.pojo.UserStub;
 
 public class TestCoffeeOrder {
     
@@ -20,7 +20,7 @@ public class TestCoffeeOrder {
 
     @BeforeEach
     public void setUp() {
-        testUser = new UserStub(0L, "Billy_Bob");
+        testUser = new UserStub(0L, "Billy_Bob", "bb@gmail.com");
         testCoffee = new Coffee(0L, CoffeeSize.GRANDE, "Test Latte", 2.50, null);
         testCart = new Cart(testUser);
     }

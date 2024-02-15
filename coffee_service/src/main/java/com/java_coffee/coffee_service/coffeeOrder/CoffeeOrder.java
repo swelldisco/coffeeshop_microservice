@@ -19,6 +19,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -48,17 +49,26 @@ public class CoffeeOrder {
     @Positive
     private int quantity;
 
+    @Column(name = "lineItemTotal")
+    @PositiveOrZero
+    private double lineItemTotal;
+
     @Column(name = "timestamp")
     @CreationTimestamp
     @JsonFormat(pattern="MM-dd-yyyy HH:mm:ss")
     private LocalDateTime timeStamp;
 
+    @Column(name = "is_paid")
+    private boolean isPaid;
+
     public CoffeeOrder(Coffee coffee, Cart cart, int quantity) {
         this.coffee = coffee;
         this.cartId = cart.getCartId();
-        this.userId = cart.getuserId();
+        this.userId = cart.getUserId();
         this.quantity = quantity;
+        this.lineItemTotal = coffee.getPrice() * quantity;
         this.timeStamp = LocalDateTime.now();
+        this.isPaid = false;
     }
 
     public CoffeeOrder(CoffeeOrder source) {
@@ -67,7 +77,9 @@ public class CoffeeOrder {
         this.cartId = source.cartId;
         this.userId = source.userId;
         this.quantity = source.quantity;
+        this.lineItemTotal = source.lineItemTotal;
         this.timeStamp = source.timeStamp;
+        this.isPaid = source.isPaid;
     }
 
     public long getOrderId() {
@@ -76,6 +88,10 @@ public class CoffeeOrder {
 
     public long getCartId() {
         return cartId;
+    }
+
+    public void setCartId(long cartId) {
+        this.cartId = cartId;
     }
 
     public long getUserId() {
@@ -106,6 +122,27 @@ public class CoffeeOrder {
         this.timeStamp = LocalDateTime.now();
     }
 
+    public boolean getIsPaid() {
+        return isPaid;
+    }
+
+    public void setIsPaid(boolean isPaid) {
+        this.isPaid = isPaid;
+    }
+
+    public void setIsPaid() {
+        this.isPaid = true;
+        this.cartId = -1;
+    }
+
+    public double getLineItemTotal() {
+        return this.lineItemTotal;
+    }
+
+    public void setLineItemTotal() {
+        lineItemTotal = coffee.getPrice() * quantity;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -115,7 +152,11 @@ public class CoffeeOrder {
         result = prime * result + (int) (cartId ^ (cartId >>> 32));
         result = prime * result + (int) (userId ^ (userId >>> 32));
         result = prime * result + quantity;
+        long temp;
+        temp = Double.doubleToLongBits(lineItemTotal);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result + ((timeStamp == null) ? 0 : timeStamp.hashCode());
+        result = prime * result + (isPaid ? 1231 : 1237);
         return result;
     }
 
@@ -141,16 +182,16 @@ public class CoffeeOrder {
             return false;
         if (quantity != other.quantity)
             return false;
+        if (Double.doubleToLongBits(lineItemTotal) != Double.doubleToLongBits(other.lineItemTotal))
+            return false;
         if (timeStamp == null) {
             if (other.timeStamp != null)
                 return false;
         } else if (!timeStamp.equals(other.timeStamp))
             return false;
+        if (isPaid != other.isPaid)
+            return false;
         return true;
     }
-
-    
-
-    
     
 }

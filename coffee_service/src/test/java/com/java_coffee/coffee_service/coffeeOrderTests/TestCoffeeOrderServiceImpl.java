@@ -30,7 +30,8 @@ import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderDto;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderRepository;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderServiceImpl;
 import com.java_coffee.coffee_service.mapper.CoffeeMapper;
-import com.java_coffee.coffee_service.userStub.UserStub;
+import com.java_coffee.coffee_service.pojo.OrderReceipt;
+import com.java_coffee.coffee_service.pojo.UserStub;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -57,9 +58,9 @@ public class TestCoffeeOrderServiceImpl {
 
     @BeforeEach
     public void setUp() {
-        testUser1 = new UserStub(0L, "Billy_Bob");
-        testUser2 = new UserStub(1L, "Jim_Bob");
-        testUser3 = new UserStub(2L, "Bubba");
+        testUser1 = new UserStub(0L, "Billy_Bob", "b-b@gmail.com");
+        testUser2 = new UserStub(1L, "Jim_Bob", "jimbo@mail.ru");
+        testUser3 = new UserStub(2L, "Bubba", "bubsy@aol.com");
         testCart1 = new Cart(0L, testUser1.getUserId(), new ArrayList<CoffeeOrder>());
         testCart2 = new Cart(1L, testUser2.getUserId(), new ArrayList<CoffeeOrder>());
         testCart3 = new Cart(2L, testUser3.getUserId(), new ArrayList<CoffeeOrder>());
@@ -69,12 +70,13 @@ public class TestCoffeeOrderServiceImpl {
 
         testList = new ArrayList<CoffeeOrder>();
 
-        testList.add(new CoffeeOrder(0L, testCoffee1, 0L, 0L, 3, LocalDateTime.now()));
-        testList.add(new CoffeeOrder(1L, testCoffee2, 0L, 0L, 1, LocalDateTime.now()));
-        testList.add(new CoffeeOrder(2L, testCoffee2, 1L, 1L, 1, LocalDateTime.now()));
-        testList.add(new CoffeeOrder(3L, testCoffee1, 1L, 1L, 1, LocalDateTime.now()));
-        testList.add(new CoffeeOrder(4L, testCoffee3, 1L, 1L, 1, LocalDateTime.now()));
-        testList.add(new CoffeeOrder(5L, testCoffee1, 2L, 2L, 1, LocalDateTime.now()));
+        testList.add(new CoffeeOrder(0L, testCoffee1, 0L, 0L, 3, testCoffee1.getPrice() * 3, LocalDateTime.now(), false));
+        testList.add(new CoffeeOrder(1L, testCoffee2, 0L, 0L, 1, testCoffee2.getPrice() * 1, LocalDateTime.now(), false));
+        testList.add(new CoffeeOrder(2L, testCoffee2, 1L, 1L, 1, testCoffee2.getPrice() * 1, LocalDateTime.now(), false));
+        testList.add(new CoffeeOrder(3L, testCoffee1, 1L, 1L, 1, testCoffee1.getPrice() * 1, LocalDateTime.now(), false));
+        testList.add(new CoffeeOrder(4L, testCoffee3, 1L, 1L, 1, testCoffee3.getPrice() * 1, LocalDateTime.now(), false));
+        testList.add(new CoffeeOrder(5L, testCoffee1, 2L, 2L, 1, testCoffee1.getPrice() * 1, LocalDateTime.now(), false));
+        testList.add(new CoffeeOrder(6L, testCoffee1, 1L, 2L, 1, testCoffee1.getPrice() * 1, LocalDateTime.now(), true));
         
     }
 
@@ -97,7 +99,7 @@ public class TestCoffeeOrderServiceImpl {
         Assertions.assertNotNull(testCart1);
         Assertions.assertNotNull(testCoffee1);
         String testCoffeeName = testCoffee1.getDrinkName();
-        CoffeeOrder tempOrder1 = new CoffeeOrder(0L, testCoffee1, testCart1.getCartId(), testCart1.getuserId(), 1, LocalDateTime.now());
+        CoffeeOrder tempOrder1 = new CoffeeOrder(0L, testCoffee1, testCart1.getCartId(), testCart1.getUserId(), 1, testCoffee1.getPrice() * 1, LocalDateTime.now(), false);
         CoffeeOrderDto tempDto = mapper.mapToCoffeeOrderDto(tempOrder1);
 
         // when
@@ -234,6 +236,70 @@ public class TestCoffeeOrderServiceImpl {
         // then
         verify(repo, times(1)).existsByOrderId((long)tempId);
         verify(repo, times(1)).deleteCoffeeOrderByOrderId((long)tempId);
+    }
+
+    @Test
+    public void testOrderTotal() {
+        // given
+        Assertions.assertNotNull(testList);
+        long testId = 1;
+        List<CoffeeOrder> testList2 = testList.stream()
+            .filter(o -> o.getUserId() == testId)
+            .filter(o -> o.getIsPaid() == false)
+            .toList();
+        Assertions.assertNotNull(testList2);
+        double testTotal = testList2.stream()
+            .mapToDouble(o -> o.getCoffee().getPrice() * o.getQuantity())
+            .reduce(0, (a,b) -> a + b);
+        Assertions.assertNotEquals(testTotal, 0);
+        List<CoffeeOrder> emptyList = new ArrayList<>();
+        Assertions.assertEquals(emptyList.size(), 0);
+        long testId2 = 23958;
+
+        // when
+        when(repo.findUnpaidOrderByCartId(testId)).thenReturn(testList.stream()
+            .filter(o -> o.getUserId() == testId)
+            .filter(o -> o.getIsPaid() == false)
+            .toList());
+        when(repo.findUnpaidOrderByCartId(testId2)).thenReturn(emptyList);
+        double returnedTotal = service.orderTotal(testId);
+        double returnedTotal2 = service.orderTotal(testId2);
+
+        // then
+        Assertions.assertNotEquals(returnedTotal, 0.00);
+        Assertions.assertEquals(returnedTotal, testTotal);
+        Assertions.assertEquals(returnedTotal2, 0.00);
+    }
+
+    @Test
+    public void testGenerateReceipt() {
+        // given
+        Assertions.assertNotNull(testList);
+        Assertions.assertNotNull(testUser2);
+        long testId = testUser2.getUserId();
+        List<CoffeeOrder> testList2 = testList.stream()
+            .filter(o -> o.getUserId() == testId)
+            .filter(o -> o.getIsPaid() == false)
+            .toList();
+        Assertions.assertNotNull(testList2);
+        long testCartId = testList2.get(0).getCartId();
+        Assertions.assertNotNull(testCartId);
+        double testTotal = testList2.stream()
+            .mapToDouble(o -> o.getCoffee().getPrice() * o.getQuantity())
+            .reduce(0, (a,b) -> a + b);
+        Assertions.assertNotEquals(testTotal, 0);
+
+        // when
+        when(repo.findUnpaidOrderByCartId(testId)).thenReturn(testList.stream()
+            .filter(o -> o.getUserId() == testId)
+            .filter(o -> o.getIsPaid() == false)
+            .toList());
+        OrderReceipt testReceipt = service.generateReceipt(testUser2, testCartId);
+
+        // then
+        Assertions.assertNotNull(testReceipt);
+        Assertions.assertEquals(testReceipt.getTotal(), testTotal);
+        Assertions.assertEquals(testReceipt.getUserId(), testUser2.getUserId());
     }
 
 

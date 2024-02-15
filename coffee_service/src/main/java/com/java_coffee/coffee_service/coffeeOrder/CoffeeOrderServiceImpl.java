@@ -5,10 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.java_coffee.coffee_service.exceptions.CartMismatchException;
 import com.java_coffee.coffee_service.exceptions.CartNotFoundException;
 import com.java_coffee.coffee_service.exceptions.OrderNotFoundException;
 import com.java_coffee.coffee_service.exceptions.RepositoryEmptyException;
 import com.java_coffee.coffee_service.mapper.CoffeeMapper;
+import com.java_coffee.coffee_service.pojo.OrderReceipt;
+import com.java_coffee.coffee_service.pojo.UserStub;
 
 import lombok.AllArgsConstructor;
 
@@ -24,7 +27,9 @@ public class CoffeeOrderServiceImpl implements CoffeeOrderService {
 
     @Override
     public CoffeeOrderDto createOrder(CoffeeOrderDto coffeeOrderDto) {
-        return mapper.mapToCoffeeOrderDto(repo.save(mapper.mapToCoffeeOrder(coffeeOrderDto)));
+        CoffeeOrder order = new CoffeeOrder(mapper.mapToCoffeeOrder(coffeeOrderDto));
+        order.setLineItemTotal();
+        return mapper.mapToCoffeeOrderDto(repo.save(order));
     }
 
     @Override
@@ -50,7 +55,7 @@ public class CoffeeOrderServiceImpl implements CoffeeOrderService {
                 .map(o -> mapper.mapToCoffeeOrderDto(o))
                 .toList();
         } else {
-            throw new CartNotFoundException();
+            throw new OrderNotFoundException();
         }
     }
 
@@ -71,6 +76,7 @@ public class CoffeeOrderServiceImpl implements CoffeeOrderService {
             CoffeeOrder updatedOrder = checkOrderByOrderId(orderId);
             updatedOrder.setCoffee(mapper.mapToCoffee(coffeeOrderDto.coffeeDto()));
             updatedOrder.setQuantity(coffeeOrderDto.quantity());
+            updatedOrder.setIsPaid(coffeeOrderDto.isPaid());
             return mapper.mapToCoffeeOrderDto(repo.save(updatedOrder));
         } else {
             throw new OrderNotFoundException();
@@ -86,9 +92,42 @@ public class CoffeeOrderServiceImpl implements CoffeeOrderService {
         }
     }
 
+    @Override
+    public double orderTotal(long cartId) {
+        double total = 0.00;
+        List<CoffeeOrder> currentOrders = repo.findUnpaidOrderByCartId(cartId);
+        if (currentOrders != null && !currentOrders.isEmpty()) {
+            for (CoffeeOrder order : currentOrders) {
+                total += (order.getLineItemTotal());
+            }
+        }
+        return total;
+    }
+
+    @Override
+    public OrderReceipt generateReceipt(UserStub userStub, long cartId) {
+        if (confirmCartOwnership(userStub.getUserId(), cartId)) {
+            List<CoffeeOrderDto> order = repo.findUnpaidOrderByCartId(cartId).stream()
+                .map(o -> mapper.mapToCoffeeOrderDto(o))
+                .toList();
+            return new OrderReceipt(userStub, order, orderTotal(cartId));
+        } else {
+            throw new CartMismatchException();
+        }
+    }
+
     private CoffeeOrder checkOrderByOrderId(long orderId) {
         return repo.findById(orderId)
             .orElseThrow(() -> new OrderNotFoundException());
+    }
+
+    private boolean confirmCartOwnership(long userId, long cartId) {
+        if (repo.findFirstByCartId(cartId).isPresent()) {
+            if (repo.findFirstByCartId(cartId).get().getUserId() == userId) {
+                return true;
+            }
+        }
+        return false;
     }
     
 }

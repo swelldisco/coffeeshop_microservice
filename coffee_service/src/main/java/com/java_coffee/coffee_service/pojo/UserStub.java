@@ -1,16 +1,18 @@
-package com.java_coffee.coffee_service.userStub;
+package com.java_coffee.coffee_service.pojo;
 
 public class UserStub {
 
     // this will probably need a stubID if I need to store it in the database
     private long userId;
     private String userName;
+    private String emailAddress;
     
     public UserStub() {}
 
-    public UserStub(long userId, String userName) {
+    public UserStub(long userId, String userName, String emailAddress) {
         this.userId = userId;
         this.userName = userName;
+        this.emailAddress = emailAddress;
     }
 
     public long getUserId() {
@@ -29,12 +31,21 @@ public class UserStub {
         this.userName = userName;
     }
 
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + (int) (userId ^ (userId >>> 32));
         result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+        result = prime * result + ((emailAddress == null) ? 0 : emailAddress.hashCode());
         return result;
     }
 
@@ -54,9 +65,13 @@ public class UserStub {
                 return false;
         } else if (!userName.equals(other.userName))
             return false;
+        if (emailAddress == null) {
+            if (other.emailAddress != null)
+                return false;
+        } else if (!emailAddress.equals(other.emailAddress))
+            return false;
         return true;
     }
 
-    
 
 }

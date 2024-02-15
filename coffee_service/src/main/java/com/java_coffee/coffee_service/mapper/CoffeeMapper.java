@@ -40,7 +40,9 @@ public class CoffeeMapper {
             source.cartId(),
             source.userId(),
             source.quantity(),
-            source.timeStamp()
+            source.lineItemTotal(),
+            source.timeStamp(),
+            source.isPaid()
         );
     }
 
@@ -48,9 +50,11 @@ public class CoffeeMapper {
         return new CoffeeOrderDto(source.getOrderId(), 
             mapToCoffeeDto(source.getCoffee()),
             source.getCartId(), 
-            source.getUserId(), 
-            source.getQuantity(), 
-            source.getTimeStamp()
+            source.getUserId(),
+            source.getQuantity(),
+            source.getLineItemTotal(), 
+            source.getTimeStamp(),
+            source.getIsPaid()
         );
     }
 
@@ -67,7 +71,7 @@ public class CoffeeMapper {
     public CartDto mapToCartDto(Cart source) {
         return new CartDto(
             source.getCartId(), 
-            source.getuserId(), 
+            source.getUserId(), 
             source.getOrders().stream()
                 .map(o -> mapToCoffeeOrderDto(o))
                 .toList()

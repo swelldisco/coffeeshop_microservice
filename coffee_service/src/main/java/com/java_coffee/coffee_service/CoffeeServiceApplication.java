@@ -2,7 +2,10 @@ package com.java_coffee.coffee_service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +19,7 @@ import com.java_coffee.coffee_service.coffee.CoffeeRepository;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrderRepository;
-import com.java_coffee.coffee_service.userStub.UserStub;
+import com.java_coffee.coffee_service.pojo.UserStub;
 
 
 @SpringBootApplication
@@ -31,6 +34,8 @@ public class CoffeeServiceApplication implements CommandLineRunner{
 
     @Autowired
     private CoffeeOrderRepository orderRepo;
+
+    private final Logger LOGGER = LoggerFactory.getLogger(CoffeeServiceApplication.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(CoffeeServiceApplication.class, args);
@@ -95,11 +100,11 @@ public class CoffeeServiceApplication implements CommandLineRunner{
         }
 
         
-        UserStub user1 = new UserStub(1L, "Billy_Bob");
-        UserStub user2 = new UserStub(2L, "Jimbo");
-        UserStub user3 = new UserStub(3L, "Bubba");
-        UserStub user4 = new UserStub(4L, "Cletus");
-        UserStub user5 = new UserStub(5L, "Jethro");
+        UserStub user1 = new UserStub(1L, "Billy_Bob", "b-b@gmail.com");
+        UserStub user2 = new UserStub(2L, "Jimbo", "jimbo@mail.ru");
+        UserStub user3 = new UserStub(3L, "Bubba", "bubsy@aol.com");
+        UserStub user4 = new UserStub(4L, "Cletus", "soccercleets@gmail.com");
+        UserStub user5 = new UserStub(5L, "Jethro", "jnotull@yahoo.com");
         
         List<Cart> testCarts = Arrays.asList(
             new Cart(user1),
@@ -121,7 +126,7 @@ public class CoffeeServiceApplication implements CommandLineRunner{
         orderRepo.save(new CoffeeOrder(tempCoffee1, tempCart1, 2));
         orderRepo.save(new CoffeeOrder(tempCoffee2, tempCart1, 1));
         orderRepo.save(new CoffeeOrder(tempCoffee3, tempCart1, 1));
-        
+
 	}
 
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
-import com.java_coffee.coffee_service.userStub.UserStub;
+import com.java_coffee.coffee_service.pojo.UserStub;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,7 +56,7 @@ public class Cart {
         return cartId;
     }
 
-    public long getuserId() {
+    public long getUserId() {
         return userId;
     }
 

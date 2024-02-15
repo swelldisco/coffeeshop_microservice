@@ -11,7 +11,7 @@ import com.java_coffee.coffee_service.cart.Cart;
 import com.java_coffee.coffee_service.coffee.Coffee;
 import com.java_coffee.coffee_service.coffee.constants.CoffeeSize;
 import com.java_coffee.coffee_service.coffeeOrder.CoffeeOrder;
-import com.java_coffee.coffee_service.userStub.UserStub;
+import com.java_coffee.coffee_service.pojo.UserStub;
 
 public class TestCart {
     
@@ -25,7 +25,7 @@ public class TestCart {
 
     @BeforeEach
     public void setUp() {
-        testUser = new UserStub(0L, "Billy_Bob");
+        testUser = new UserStub(0L, "Billy_Bob", "b-b@gmail.com");
         testCoffee1 = new Coffee(0L, CoffeeSize.GRANDE, "Test Latte", 2.50, null);
         testCoffee2 = new Coffee(1L, CoffeeSize.SHORT, "Test Mocha", 3.00, null);
         testCart1 = new Cart(testUser);
@@ -53,7 +53,7 @@ public class TestCart {
         Cart tempCart = new Cart(testUser);
 
         Assertions.assertNotNull(tempCart);
-        Assertions.assertEquals(tempCart.getuserId(), testUser.getUserId());
+        Assertions.assertEquals(tempCart.getUserId(), testUser.getUserId());
         //Assertions.assertNotNull(tempCart.getTimeStamp());
     }
 
