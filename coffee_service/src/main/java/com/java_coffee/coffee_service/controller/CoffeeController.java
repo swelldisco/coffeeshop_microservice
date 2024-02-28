@@ -1,6 +1,8 @@
 package com.java_coffee.coffee_service.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -71,6 +73,12 @@ public class CoffeeController {
         return new ResponseEntity<>(coffeeService.findCoffeeById(coffeeId), HttpStatus.OK);
     }
 
+    // http://127.0.0.1:8082/api_v1/coffees/drinkName?name=latte
+    @GetMapping("/drinkName")
+    public ResponseEntity<List<CoffeeDto>> getCoffeesByName(@RequestParam(name = "name") String drinkName) {
+        return new ResponseEntity<>(coffeeService.findAllByName(drinkName), HttpStatus.OK);
+    }
+
     // http://127.0.0.1:8082/api_v1/coffees/coffee?name=latte&size=grande
     @GetMapping("/coffee")
     public ResponseEntity<CoffeeDto> getCoffeeByNameAndSize(@RequestParam(name = "name") String drinkName, @RequestParam String size) {
@@ -81,12 +89,6 @@ public class CoffeeController {
     @GetMapping("/allCoffees")
     public ResponseEntity<List<CoffeeDto>> getAllCoffee() {
         return new ResponseEntity<>(coffeeService.findAllCoffees(), HttpStatus.OK);
-    }
-
-    // http://127.0.0.1:8082/api_v1/coffees/drinkName?name=latte
-    @GetMapping("/drinkName")
-    public ResponseEntity<List<CoffeeDto>> getCoffeesByName(@RequestParam(name = "name") String drinkName) {
-        return new ResponseEntity<>(coffeeService.findAllByName(drinkName), HttpStatus.OK);
     }
 
     // http://127.0.0.1:8082/api_v1/coffees/updateCoffee/1
@@ -194,8 +196,10 @@ public class CoffeeController {
 
     // http://127.0.0.1:8082/api_v1/coffees/orderTotal?id=2
     @GetMapping("/orderTotal")
-    public ResponseEntity<Double> getOrderTotal(@RequestParam(name = "id") long cartId) {
-        return new ResponseEntity<>(orderService.orderTotal(cartId), HttpStatus.OK);
+    public ResponseEntity<Map<String, Double>> getOrderTotal(@RequestParam(name = "id") long cartId) {
+        Map<String, Double> total = new HashMap<>();
+        total.put("total",orderService.orderTotal(cartId));
+        return new ResponseEntity<>(total, HttpStatus.OK);
     }
 
     // http://127.0.0.1:8082/api_v1/coffees/receipt?cartId=2

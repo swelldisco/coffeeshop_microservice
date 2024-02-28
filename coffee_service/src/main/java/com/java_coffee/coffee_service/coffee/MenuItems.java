@@ -18,10 +18,10 @@ public class MenuItems {
         final List<String> ing5 = Arrays.asList("Espresso");
 
         final List<Coffee> tempList = Arrays.asList(
-            new Coffee(0L, CoffeeSize.SHORT,"Mocha", 3.29, ing2),
-            new Coffee(0L, CoffeeSize.TALL,"Mocha", 3.29, ing2),
-            new Coffee(0L, CoffeeSize.GRANDE,"Mocha", 3.29, ing2),
-            new Coffee(0L, CoffeeSize.VENTI,"Mocha", 3.29, ing2),
+            new Coffee(0L, CoffeeSize.SHORT, "Mocha", 3.29, ing2),
+            new Coffee(0L, CoffeeSize.TALL, "Mocha", 3.29, ing2),
+            new Coffee(0L, CoffeeSize.GRANDE, "Mocha", 3.29, ing2),
+            new Coffee(0L, CoffeeSize.VENTI, "Mocha", 3.29, ing2),
 
             new Coffee(0L, CoffeeSize.SHORT, "Skim Latte", 3.25, ing1),
             new Coffee(0L, CoffeeSize.TALL, "Skim Latte", 3.25, ing1),
